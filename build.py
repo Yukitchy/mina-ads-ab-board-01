@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Google広告スクリプトが毎朝ドライブに書くCSV 2本から、index.html の `const AB = {...};` を実データで書き換える。
-使い方: python3 build.py   （毎朝 launchd が実行 → 変更があれば push）"""
-import csv, json, re, sys
+使い方: python3 build.py [--publish]   （毎朝 launchd com.yuki.mina-ads-ab-board が --publish 付きで実行 → 変更があれば push）
+launchd からは /usr/bin/python3（3.9・ドライブを読める権限あり）で動かすので、3.9 で通る書き方にしておく。"""
+import csv, json, re, subprocess, sys
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
@@ -60,6 +61,13 @@ def main():
     ab = build(*load(folders[-1]), json.loads(m.group(1)), datetime.now(timezone(timedelta(hours=9))).date())
     HTML.write_text(html[:m.start(1)] + json.dumps(ab, ensure_ascii=False) + html[m.end(1):])
     print(f"{folders[-1].name}: {len(ab['days'])}日分 / 見出し A{len(ab['assets']['A'])} B{len(ab['assets']['B'])}")
+    if "--publish" in sys.argv:
+        git = lambda *a: subprocess.run(["/usr/bin/git", "-C", str(HTML.parent), *a], check=True)
+        if subprocess.run(["/usr/bin/git", "-C", str(HTML.parent), "diff", "--quiet", "index.html"]).returncode:
+            git("commit", "-q", "-m", f"実データ更新 {folders[-1].name}", "index.html")
+            git("push", "-q")
+            print("pushed")
+        HTML.with_name(".last-success").write_text(datetime.now().isoformat())
 
 
 if __name__ == "__main__":
