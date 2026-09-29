@@ -263,7 +263,7 @@ function verdictOf() {
   const g2 = n >= 14 && T.A.imp >= 1000 && T.B.imp >= 1000;
   const dCtr = DM.ctr.d, dBcr = DM.bcr.d;
   const g3 = Math.abs(dCtr) >= 0.20;
-  const lead = dCtr >= 0 ? 'B' : 'A';
+  const lead = Math.abs(dCtr) < 0.005 ? null : dCtr >= 0 ? 'B' : 'A';  // 差がなければ優勢なし
   const short = ['A', 'B'].filter(s => T[s].clk < AB.min).map(s => ({ s, need: AB.min - T[s].clk }));
   const perDay = s => AB.days.slice(-7).reduce((a, x) => a + x[s].clk, 0) / 7;
   const eta = short.length ? Math.max(...short.map(x => perDay(x.s) ? Math.ceil(x.need / perDay(x.s)) : Infinity)) : 0;
@@ -281,9 +281,11 @@ const bestAssets = s => AB.assets[s].filter(a => a.lb === 'best');
 function nextSteps() {
   const L = V.lead, O = L === 'A' ? 'B' : 'A';
   const lows = lowAssets(O).map(a => a.t);
+  const hold = { t: '今週は触らない。判定は保留', d: V.short.map(x => `広告${x.s}あと${x.need}クリック`).join('・') + '。' + (V.etaDate ? `100クリックに届くのは ${md(V.etaDate)} ごろ、` : 'まだクリックが少ないので到達日は出せない。') + `週1判定の次の日は ${md(V.judgeDay)}。` };
+  if (V.state === 'pending' && !L) return [hold, { t: 'まだ差は出ていない', d: 'どちらが優勢かを言えるだけの数字がない。見出しのラベルが「学習中」から変わるのを待つ。' }];
   if (V.state === 'pending') return [
-    { t: '今週は触らない。判定は保留', d: V.short.map(x => `広告${x.s}あと${x.need}クリック`).join('・') + `。100クリックに届くのは ${md(V.etaDate)} ごろ、週1判定の次の日は ${md(V.judgeDay)}。` },
-    { t: `現時点の傾向は広告${L}が優勢（CTR ${sgn(V.dCtr)}）`, d: `勝ち基準の相対+20%は超えているが、データ量ゲートが未達なので勝ち宣言はしない。book_click率は ${sgn(V.dBcr, 1)}（${V.bcAgree ? 'CTRと同じ向き' : 'ほぼ差なし'}）。` },
+    hold,
+    { t: `現時点の傾向は広告${L}が優勢（CTR ${sgn(V.dCtr)}）`, d: `${V.g3 ? '勝ち基準の相対+20%は超えているが' : '差はまだ勝ち基準の相対+20%に届かず'}、データ量ゲートが未達なので勝ち宣言はしない。book_click率は ${sgn(V.dBcr, 1)}（${V.bcAgree ? 'CTRと同じ向き' : 'ほぼ差なし'}）。` },
     { t: `広告${L}が勝った時の準備: 挑戦者Cの下書き`, d: `広告${O}を止め、広告${L}の「最良」見出しを残す。Cは軸を1つだけ変える（訴求の角度、または見出し1〜3本の差し替え）。` },
     { t: `広告${O}の「低」見出しを差し替え候補にメモ`, d: (lows.length ? lows.join(' / ') : '（低ラベルなし）') + '。差し替えは判定日にまとめて行う。' },
   ];
@@ -343,7 +345,7 @@ $('#meta').innerHTML = `${md(AB.start)}〜${md(V.last)} ・ <b>${V.n}日目</b> 
 /* タイル */
 const stTxt = V.state === 'pending' ? '保留' : V.state === 'win' ? V.winner + '勝ち' : '引き分け';
 const stSub = V.state === 'pending'
-  ? V.short.map(x => `広告${x.s}があと${x.need}クリック`).join('、') + `<br>いまは広告${V.lead}が優勢（判定はまだしない）`
+  ? V.short.map(x => `広告${x.s}があと${x.need}クリック`).join('、') + (V.lead ? `<br>いまは広告${V.lead}が優勢（判定はまだしない）` : '<br>まだ差は出ていない')
   : V.state === 'win' ? `CTR差 ${sgn(V.dCtr)}` : '差が20%未満。据え置き';
 $('#tiles').innerHTML = `
   <div class="tile main ${V.state === 'pending' ? 'pend' : 'up'}"><label>判定</label><b>${stTxt}</b><small>${stSub}</small></div>
@@ -363,12 +365,12 @@ $('#bars').innerHTML = ['A', 'B'].map(s => { const t = T[s], ok = t.clk >= AB.mi
   const dtxt = s => `<div class="kz-pg t2"><i style="color:${s === 'A' ? cA : cB}">${s}</i><span>${V.n}日 ／ 表示 ${int(T[s].imp)}回</span></div>`;
   const steps = [
     { st: V.g1 ? 'ok' : 'ng', n: 1, t: 'データ量', s: '各広告 100クリック以上', chip: V.g1 ? '通過' : '未達',
-      b: pg('A') + pg('B') + `<p class="kz-note">${V.g1 ? '両方が判定ラインに到達。' : V.short.map(x => `<b>広告${x.s}があと${x.need}クリック</b>`).join('、') + `。今のペースだと ${md(V.etaDate)} ごろ到達。`}</p>` },
+      b: pg('A') + pg('B') + `<p class="kz-note">${V.g1 ? '両方が判定ラインに到達。' : V.short.map(x => `<b>広告${x.s}があと${x.need}クリック</b>`).join('、') + (V.etaDate ? `。今のペースだと ${md(V.etaDate)} ごろ到達。` : '。まだクリックが少なく、到達日は出せない。')}</p>` },
     { st: V.g2 ? 'ok' : 'ng', n: 2, t: '期間と表示回数', s: '2週間以上・各1,000回以上', chip: V.g2 ? '通過' : '未達', b: dtxt('A') + dtxt('B') },
     { st: V.g3 ? (V.bcAgree || Math.abs(V.dBcr) < .1 ? 'wn' : 'ok') : 'ng', n: 3, t: '差の大きさ', s: 'CTR差が相対20%以上', chip: V.g3 ? '基準超え（注意あり）' : '差が小さい',
       b: `<div class="kz-nl"><div class="rl"></div><div class="z"></div><div class="th" style="left:${pos(-.2)}%"></div><div class="th" style="left:${pos(.2)}%"></div>${[-.4, -.2, 0, .2, .4].map(v => `<span class="t" style="left:${pos(v)}%">${v ? sgn(v) : '0'}</span>`).join('')}<div class="pt" style="left:${pos(V.dCtr)}%;--c:${V.dCtr >= 0 ? cB : cA}"><b style="background:${V.dCtr >= 0 ? cB : cA}">CTR ${sgn(V.dCtr)}</b></div></div><p class="kz-note">CTR <b>${pct(A.ctr)}</b>（A）→ <b>${pct(B.ctr)}</b>（B）。${bcNote}</p>` },
     { st: 'zz', n: 4, t: '判定', s: '1〜3がそろったら宣言', chip: V.state === 'pending' ? '保留' : '宣言可',
-      b: `<div class="kz-res"><span class="lab">RESULT</span><p class="big">${V.state === 'pending' ? '保留' : V.state === 'win' ? V.winner + ' の勝ち' : '引き分け'}</p><p>${V.state === 'pending' ? `傾向は<b>広告${V.lead}が優勢</b>。ただし手順1で止まっているので、勝ちは宣言しない。次の判定日は <b>${md(V.judgeDay)}</b>（週1回）。` : '手順1〜3を通過。'}</p></div>` },
+      b: `<div class="kz-res"><span class="lab">RESULT</span><p class="big">${V.state === 'pending' ? '保留' : V.state === 'win' ? V.winner + ' の勝ち' : '引き分け'}</p><p>${V.state === 'pending' ? `${V.lead ? `傾向は<b>広告${V.lead}が優勢</b>。ただし` : 'まだ差は出ていない。'}手順1で止まっているので、勝ちは宣言しない。次の判定日は <b>${md(V.judgeDay)}</b>（週1回）。` : '手順1〜3を通過。'}</p></div>` },
   ];
   $('#kz-steps').innerHTML = steps.map(x => `<div class="kz-st"><div class="kz-rail"><span class="kz-dot ${x.st}">${x.st === 'ok' ? '✓' : x.n}</span></div><div class="kz-body">${x.st === 'zz' ? x.b : `<div class="kz-hd"><h4>${x.n}. ${x.t}<span>${x.s}</span></h4><span class="kz-chip ${x.st}">${x.chip}</span></div>${x.b}`}</div></div>`).join('');
 }
