@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>ABテスト判定ボード</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* 既存コックピット(akiba-tour-channels/index.html)の週報 #wk の言語をそのまま借りる:
+   ink #0a0a0a / dim #6b6b6b / line #e5e5e5 / tomato #d6361f / good #1a7f4b、Zen Kaku Gothic New + JetBrains Mono、
+   72px主役タイル・11px大文字ラベル・上罫線・黒ピル。B(挑戦者)だけ既存の --keep インディゴ #4f46e5 */
+*{box-sizing:border-box}
+body{margin:0;background:#fff;color:#0a0a0a;font-family:"Zen Kaku Gothic New","Hiragino Sans",sans-serif;-webkit-text-size-adjust:100%;line-height:1.75;padding-bottom:48px}
+body,p,li,td,th,div,span,b,small,h1,h2,h3{word-break:auto-phrase;line-break:strict;overflow-wrap:anywhere}
+/* ── 既存ページの殻（見本。ここは実物では既にある） ── */
+.shell{background:linear-gradient(180deg,#fffdfa,#f6f4f0);border-bottom:1px solid #e6e2d8}
+.wrap{max-width:1440px;margin:0 auto;padding:0 44px}
+.shell .eyebrow{font-size:11px;font-weight:800;letter-spacing:.16em;color:#c23b2e;margin:0;padding-top:22px}
+.shell h1{font-size:23px;font-weight:800;margin:0 0 12px;letter-spacing:-.01em;line-height:1.4}
+.tabs{display:flex;gap:4px}
+.tab{font-size:14px;font-weight:700;color:#6b7268;padding:10px 16px 12px;border-bottom:3px solid transparent}
+.tab.on{color:#c23b2e;border-bottom-color:#c23b2e}
+.embed-note{margin:14px 0 0;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;font-size:12px;color:#6b6b6b}
+.embed-note b{font:700 10.5px "JetBrains Mono",monospace;background:#0a0a0a;color:#fff;padding:2px 8px;border-radius:3px;letter-spacing:.04em}
+.ghost{margin-top:14px;border:1px dashed #cfcfcf;border-radius:4px;padding:10px 16px;font-size:12px;color:#8a8a8a;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.ghost span:first-child{font-weight:700;color:#6b6b6b}
+/* ── ここから #ab パネル（#wk と同じ作り） ── */
+#ab{--ink:#0a0a0a;--dim:#6b6b6b;--line:#e5e5e5;--tomato:#d6361f;--good:#1a7f4b;--A:#0a0a0a;--B:#4f46e5;--Bsoft:#eeedfc;
+  margin-top:18px;font-variant-numeric:tabular-nums;line-height:1.4;padding:6px 0 8px}
+#ab .mono{font-family:"JetBrains Mono",monospace}
+#ab .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px 20px;flex-wrap:wrap;border-bottom:2px solid var(--ink);padding-bottom:12px}
+#ab .top h2{font-size:22px;font-weight:900;margin:0;letter-spacing:-.01em}
+#ab .top .meta{font-size:12.5px;color:var(--dim)}
+#ab .top .meta b{color:var(--ink);font-weight:700}
+#ab .dummy{display:inline-block;font:700 10.5px "JetBrains Mono",monospace;color:var(--tomato);border:1px solid var(--tomato);padding:1px 7px;border-radius:3px;margin-left:8px;letter-spacing:.03em;vertical-align:1px}
+#ab .tiles{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;border-left:1px solid var(--line);border-bottom:1px solid var(--line);margin-top:12px}
+#ab .tile{padding:14px 22px 12px;border-right:1px solid var(--line);border-top:1px solid var(--line);min-width:0}
+#ab .tile label{display:block;font-size:11px;font-weight:700;color:var(--dim);letter-spacing:.08em;margin-bottom:10px}
+#ab .tile b{font-size:clamp(28px,3.1vw,44px);font-weight:900;letter-spacing:-.03em;line-height:1;white-space:nowrap}
+#ab .tile.main b{font-size:clamp(40px,5vw,72px)}
+#ab .tile small{display:block;font-size:12.5px;color:var(--dim);margin-top:8px;font-weight:500;line-height:1.5}
+#ab .tile.pend b{color:var(--tomato)}
+#ab .tile.up b{color:var(--good)}
+/* ── 判定の基準（案3の階段を折りたたみで。接頭辞 kz-） ── */
+#ab .kz{margin:0}
+#ab .kz>summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--dim);user-select:none;-webkit-tap-highlight-color:transparent}
+#ab .kz>summary::-webkit-details-marker{display:none}
+#ab .kz>summary::after{content:"▸";font-size:12px;letter-spacing:0;color:var(--ink)}
+#ab .kz[open]>summary::after{content:"▾"}
+#ab .kz>summary:hover{color:var(--ink)}
+#ab .kz>summary:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+#ab .kz-steps{display:grid;grid-template-columns:28px minmax(0,1fr);column-gap:14px;padding:14px 0 2px;border-bottom:1px solid var(--line)}
+#ab .kz-st{display:contents}
+#ab .kz-rail{position:relative;display:flex;justify-content:center}
+#ab .kz-rail::before{content:"";position:absolute;top:0;bottom:0;width:2px;background:var(--line)}
+#ab .kz-st:first-child .kz-rail::before{top:14px}
+#ab .kz-st:last-child .kz-rail::before{bottom:calc(100% - 14px)}
+#ab .kz-dot{position:relative;z-index:1;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font:700 13px "JetBrains Mono",monospace;border:2px solid;background:#fff}
+#ab .kz-dot.ok{color:var(--good);border-color:var(--good)}
+#ab .kz-dot.ng{color:var(--tomato);border-color:var(--tomato)}
+#ab .kz-dot.wn{color:var(--ink);border-color:var(--ink)}
+#ab .kz-dot.zz{color:var(--dim);border-color:#bdbdbd;border-style:dashed}
+#ab .kz-body{padding:0 0 18px;min-width:0}
+#ab .kz-hd{display:flex;justify-content:space-between;align-items:baseline;gap:4px 12px;flex-wrap:wrap;padding-top:2px}
+#ab .kz-hd h4{margin:0;font-size:15px;font-weight:900;letter-spacing:-.01em}
+#ab .kz-hd h4 span{font-size:11.5px;color:var(--dim);font-weight:500;margin-left:8px;letter-spacing:0}
+#ab .kz-chip{font-size:10.5px;font-weight:700;letter-spacing:.03em;padding:3px 9px;border-radius:3px;white-space:nowrap;color:#fff}
+#ab .kz-chip.ok{background:var(--good)} #ab .kz-chip.ng{background:var(--tomato)} #ab .kz-chip.wn{background:var(--ink)} #ab .kz-chip.zz{background:#fff;color:var(--dim);border:1px solid #cfcfcf}
+#ab .kz-pg{display:grid;grid-template-columns:22px minmax(0,1fr) 84px;gap:12px;align-items:center;margin-top:8px;font-size:13px}
+#ab .kz-pg i{font-style:normal;font:700 13px "JetBrains Mono",monospace}
+#ab .kz-pg em{font-style:normal;text-align:right;font-weight:700}
+#ab .kz-pg em small{color:var(--dim);font-weight:500}
+#ab .kz-pg.t2{grid-template-columns:22px minmax(0,1fr)}
+#ab .kz-tk{position:relative;height:14px;background:#f1f1f1;border-radius:2px}
+#ab .kz-tk u{position:absolute;left:0;top:0;bottom:0;border-radius:2px;background:var(--c)}
+#ab .kz-tk s{position:absolute;top:-5px;bottom:-5px;width:2px;background:var(--ink);left:var(--m)}
+#ab .kz-note{font-size:12.5px;color:var(--dim);margin:8px 0 0;line-height:1.6}
+#ab .kz-note b{color:var(--ink)}
+#ab .kz-nl{position:relative;height:66px;margin:12px 16px 0}
+#ab .kz-nl .rl{position:absolute;left:0;right:0;top:30px;height:8px;border-radius:2px;background:linear-gradient(90deg,#ececec 0 25%,#f1f1f1 25% 75%,var(--Bsoft) 75%)}
+#ab .kz-nl .z{position:absolute;left:50%;top:24px;height:20px;width:2px;background:var(--ink)}
+#ab .kz-nl .th{position:absolute;top:24px;height:20px;border-left:2px dashed #9a9a9a}
+#ab .kz-nl .t{position:absolute;top:48px;font:500 10px "JetBrains Mono",monospace;color:#8a8a8a;transform:translateX(-50%);white-space:nowrap}
+#ab .kz-nl .pt{position:absolute;top:0;transform:translateX(-50%);text-align:center;white-space:nowrap}
+#ab .kz-nl .pt b{display:block;font:700 12px "JetBrains Mono",monospace;color:#fff;padding:2px 8px;border-radius:3px}
+#ab .kz-nl .pt::after{content:"";display:block;width:2px;height:20px;margin:0 auto;background:var(--c)}
+#ab .kz-res{background:var(--ink);color:#fff;border-radius:3px;padding:16px 20px}
+#ab .kz-res .lab{font-size:11px;letter-spacing:.14em;font-weight:700;color:#9a9a9a}
+#ab .kz-res .big{font-size:clamp(40px,8vw,56px);font-weight:900;letter-spacing:-.02em;line-height:1.1;margin:2px 0 0}
+#ab .kz-res p:not(.big){margin:8px 0 0;font-size:13px;color:#d9d9d9;line-height:1.65}
+#ab .kz-res p b{color:#fff}
+#ab .kz-steps>*,#ab .kz-st>*{min-width:0}
+/* 判定ライン */
+#ab .gate{display:grid;grid-template-columns:150px 1fr;gap:6px 24px;padding:14px 0;border-bottom:1px solid var(--line)}
+#ab .gate h3{margin:0;font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--dim)}
+#ab .gate h3 span{display:block;font-weight:500;letter-spacing:0;margin-top:2px}
+#ab .bar{display:grid;grid-template-columns:22px 1fr 96px;gap:12px;align-items:center;padding:3px 0;font-size:13px}
+#ab .bar i{font-style:normal;font:700 13px "JetBrains Mono",monospace}
+#ab .track{position:relative;height:14px;background:#f1f1f1;border-radius:2px}
+#ab .track u{position:absolute;left:0;top:0;bottom:0;border-radius:2px;background:var(--c)}
+#ab .track s{position:absolute;top:-5px;bottom:-5px;width:2px;background:var(--ink);left:var(--mark)}
+#ab .track s::after{content:"100";position:absolute;top:-16px;left:50%;transform:translateX(-50%);font:700 10px "JetBrains Mono",monospace;color:var(--ink)}
+#ab .bar em{font-style:normal;text-align:right;font-weight:700}
+#ab .bar em small{color:var(--dim);font-weight:500}
+/* 比較表 */
+#ab .cmp{margin-top:14px;width:100%;border-collapse:collapse;font-size:13.5px}
+#ab .cmp th{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--dim);text-align:right;padding:0 0 8px;border-bottom:1px solid var(--ink)}
+#ab .cmp th:first-child{text-align:left}
+#ab .cmp th.hA{color:var(--A)} #ab .cmp th.hB{color:var(--B)}
+#ab .cmp td{padding:7px 0;border-bottom:1px solid #eee;text-align:right}
+#ab .cmp td:first-child{text-align:left;color:var(--dim)}
+#ab .cmp td:first-child small{display:block;font-size:10.5px}
+#ab .cmp tr:last-child td{border-bottom:0}
+#ab .cmp td.v{font-weight:700}
+#ab .cmp .diff{font-weight:700;white-space:nowrap}
+#ab .cmp .diff.g{color:var(--good)} #ab .cmp .diff.r{color:var(--tomato)} #ab .cmp .diff.n{color:var(--dim);font-weight:500}
+#ab .cmp tr.cv td{color:#b0b0b0}
+/* 2段 */
+#ab .cols{display:grid;grid-template-columns:1.1fr 1fr;gap:0 40px;margin-top:22px}
+#ab .cols>*{min-width:0}
+#ab .sec>h3,#ab .action>h3{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--dim);border-bottom:1px solid var(--ink);padding-bottom:8px;margin:0}
+#ab .leg{display:flex;gap:16px;font-size:12px;color:var(--dim);margin:10px 0 2px}
+#ab .leg span::before{content:"";display:inline-block;width:10px;height:10px;background:var(--c);margin-right:6px;border-radius:2px;vertical-align:-1px}
+#ab .mini{font-size:11px;font-weight:700;color:var(--dim);letter-spacing:.08em;margin:14px 0 2px}
+#ab svg{display:block;overflow:visible}
+#ab .gl{stroke:#ececec;stroke-width:1} #ab .gl.z{stroke:#bdbdbd}
+#ab .ax,#ab .ay{font:500 10px "JetBrains Mono",monospace;fill:#8a8a8a;text-anchor:middle}
+#ab .ay{text-anchor:end}
+/* アセット */
+#ab .assets{display:grid;grid-template-columns:1fr 1fr;gap:0 40px;margin-top:22px}
+#ab .assets>*{min-width:0}
+#ab .as{display:grid;grid-template-columns:44px minmax(0,1fr) 62px 56px;gap:10px;align-items:baseline;padding:6px 0;border-bottom:1px solid #eee;font-size:13px}
+#ab .as:last-child{border-bottom:0}
+#ab .as p{margin:0;font-weight:700;line-height:1.35}
+#ab .as p small{display:block;font-weight:500;color:var(--dim);font-size:11px;margin-top:1px}
+#ab .as .n{text-align:right;color:var(--dim);font-size:12px}
+#ab .as .n b{color:var(--ink);font-weight:700}
+#ab .lb{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 0;border-radius:3px;text-align:center;width:44px;color:#fff}
+#ab .lb.best{background:var(--good)} #ab .lb.good{background:#0a0a0a} #ab .lb.low{background:var(--tomato)} #ab .lb.learn{background:#fff;color:var(--dim);border:1px solid #cfcfcf}
+#ab .ah{display:flex;justify-content:space-between;align-items:baseline;gap:8px;border-bottom:1px solid var(--ink);padding-bottom:8px}
+#ab .ah h3{margin:0;font-size:15px;font-weight:900;letter-spacing:-.01em}
+#ab .ah>span{font-size:11.5px;color:var(--dim)}
+#ab .pill{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.03em;background:var(--ink);color:#fff;padding:3px 9px;border-radius:3px;vertical-align:2px;margin-left:6px}
+#ab .pill.B{background:var(--B)} #ab .pill.up{background:var(--good)}
+/* 一手 */
+#ab .action{margin-top:22px}
+#ab .action ol{list-style:none;margin:6px 0 0;padding:0}
+#ab .action li{display:grid;grid-template-columns:44px 1fr;gap:14px;padding:6px 0;border-bottom:1px solid var(--line);align-items:baseline}
+#ab .action li:last-child{border-bottom:0}
+#ab .action i{font-style:normal;font-size:26px;font-weight:700;color:var(--dim)}
+#ab .action b{font-size:15px;font-weight:700}
+#ab .action p{font-size:12.5px;color:var(--dim);margin:2px 0 0}
+#ab .loopnote{font-size:11px;color:var(--dim);margin:8px 0 0}
+#ab .foot{display:flex;justify-content:space-between;gap:6px 20px;margin-top:14px;font-size:11px;color:var(--dim)}
+#ab .tiles>*,#ab .gate>*,#ab .action li>*,#ab .top>*{min-width:0}
+@media(max-width:900px){
+  .wrap{padding:0 18px}
+  #ab .cols,#ab .assets{grid-template-columns:1fr}
+  #ab .assets>*+*{margin-top:20px}
+  #ab .tiles{grid-template-columns:1fr 1fr}
+  #ab .tile.main{grid-column:1/-1}
+  #ab .tile{padding:14px 16px}
+  #ab .tile.main b{font-size:56px}
+  #ab .tile b{font-size:32px}
+  #ab .kz-steps{column-gap:10px}
+  #ab .gate{grid-template-columns:1fr}
+  #ab .foot{flex-direction:column}
+}
+@media(max-width:520px){
+  #ab .top h2{font-size:20px}
+  #ab .bar{grid-template-columns:18px 1fr 84px;gap:8px}
+  #ab .as{grid-template-columns:44px minmax(0,1fr) 54px 50px;gap:8px}
+  #ab .cmp{font-size:12.5px}
+  #ab .tile.main b{font-size:52px}
+}
+</style>
+</head>
+<body>
+<div class="shell"><div class="wrap">
+  <p class="eyebrow">AKIBA TOUR · CHANNELS</p>
+  <h1>広告コックピット｜ツアー・レッスン・アフィリエイト</h1>
+  <div class="tabs"><span class="tab on">広告運用</span><span class="tab">記事</span><span class="tab">キーワード</span></div>
+</div></div>
+
+<div class="wrap">
+  <div class="embed-note"><b>組み込み案</b><span>#p-ads の週報 <code>#wk</code> の直下に、パネルを1枚足す。既存の CSS と部品をそのまま使い、判定タイルの下に「判定の基準」（案3の階段）を折りたたみで入れる。</span></div>
+  <div class="ghost"><span>今週の広告（既存の週報 #wk）</span><span>タイル ／ 4商材の台帳 ／ 今日の一手 …</span></div>
+
+  <section id="ab" aria-label="ABテスト">
+    <div class="top"><h2>ABテスト <span style="font-weight:500;color:var(--dim);font-size:15px">検索広告 A 対 B</span></h2><div class="meta mono" id="meta"></div></div>
+    <div class="tiles" id="tiles"></div>
+
+    <details class="kz" id="kz"><summary>判定の基準を見る</summary><div class="kz-steps" id="kz-steps"></div></details>
+
+    <div class="gate">
+      <h3>判定ライン<span>各広告100クリックで判定開始</span></h3>
+      <div id="bars"></div>
+    </div>
+
+    <table class="cmp" id="cmp"></table>
+
+    <div class="cols">
+      <div class="sec">
+        <h3>日別の推移</h3>
+        <div class="leg"><span style="--c:var(--A)">広告A</span><span style="--c:var(--B)">広告B</span></div>
+        <p class="mini">クリック数 / 日</p><div id="c1"></div>
+        <p class="mini">CTR / 日</p><div id="c2"></div>
+      </div>
+      <div class="action"><h3>次の一手</h3><ol id="acts"></ol><p class="loopnote" id="loop"></p></div>
+    </div>
+
+    <div class="assets" id="assets"></div>
+    <div class="foot"><span>Google のラベル（最良・良・低・学習中）は各見出しの実績評価。想定表示。</span><span class="mono">ルール: ads/ab-test-rules.md</span></div>
+  </section>
+</div>
+
+<script>
+/* ── 共通ロジック（3案とも同じ計算。見た目だけ案ごと） ── */
+const AB = {"start": "2026-09-30", "min": 100, "budget": 1300, "days": [{"date": "2026-09-30", "w": "水", "A": {"imp": 137, "clk": 5, "cost": 408, "bc": 1}, "B": {"imp": 250, "clk": 10, "cost": 690, "bc": 3}}, {"date": "2026-10-01", "w": "木", "A": {"imp": 159, "clk": 7, "cost": 533, "bc": 1}, "B": {"imp": 149, "clk": 7, "cost": 623, "bc": 2}}, {"date": "2026-10-02", "w": "金", "A": {"imp": 185, "clk": 8, "cost": 582, "bc": 0}, "B": {"imp": 198, "clk": 8, "cost": 659, "bc": 1}}, {"date": "2026-10-03", "w": "土", "A": {"imp": 113, "clk": 4, "cost": 311, "bc": 0}, "B": {"imp": 203, "clk": 10, "cost": 861, "bc": 0}}, {"date": "2026-10-04", "w": "日", "A": {"imp": 99, "clk": 4, "cost": 302, "bc": 0}, "B": {"imp": 114, "clk": 6, "cost": 504, "bc": 0}}, {"date": "2026-10-05", "w": "月", "A": {"imp": 278, "clk": 9, "cost": 697, "bc": 1}, "B": {"imp": 114, "clk": 5, "cost": 423, "bc": 0}}, {"date": "2026-10-06", "w": "火", "A": {"imp": 168, "clk": 7, "cost": 650, "bc": 1}, "B": {"imp": 131, "clk": 7, "cost": 532, "bc": 1}}, {"date": "2026-10-07", "w": "水", "A": {"imp": 190, "clk": 6, "cost": 428, "bc": 0}, "B": {"imp": 110, "clk": 6, "cost": 439, "bc": 2}}, {"date": "2026-10-08", "w": "木", "A": {"imp": 166, "clk": 7, "cost": 535, "bc": 0}, "B": {"imp": 118, "clk": 6, "cost": 501, "bc": 0}}, {"date": "2026-10-09", "w": "金", "A": {"imp": 156, "clk": 6, "cost": 482, "bc": 1}, "B": {"imp": 121, "clk": 5, "cost": 425, "bc": 1}}, {"date": "2026-10-10", "w": "土", "A": {"imp": 227, "clk": 7, "cost": 488, "bc": 1}, "B": {"imp": 144, "clk": 8, "cost": 712, "bc": 1}}, {"date": "2026-10-11", "w": "日", "A": {"imp": 214, "clk": 7, "cost": 533, "bc": 3}, "B": {"imp": 185, "clk": 10, "cost": 755, "bc": 1}}, {"date": "2026-10-12", "w": "月", "A": {"imp": 97, "clk": 4, "cost": 288, "bc": 1}, "B": {"imp": 238, "clk": 11, "cost": 946, "bc": 0}}, {"date": "2026-10-13", "w": "火", "A": {"imp": 173, "clk": 6, "cost": 483, "bc": 0}, "B": {"imp": 142, "clk": 8, "cost": 581, "bc": 0}}], "assets": {"A": [{"t": "Private Akihabara Anime Tour", "ja": "プライベート秋葉原アニメツアー", "lb": "best", "imp": 404, "clk": 23, "ctr": 0.05801698347849004}, {"t": "Akihabara Tour With a Local", "ja": "地元の人と行く秋葉原ツアー", "lb": "good", "imp": 515, "clk": 20, "ctr": 0.038811984946845894}, {"t": "Rated 4.96 on Airbnb", "ja": "Airbnbで4.96の評価", "lb": "good", "imp": 256, "clk": 10, "ctr": 0.038977975930044664}, {"t": "4.96 Stars From 171 Reviews", "ja": "171件のレビューで星4.96", "lb": "good", "imp": 457, "clk": 18, "ctr": 0.03973322745609504}, {"t": "100% Private, Never Grouped", "ja": "100%プライベート、相席なし", "lb": "best", "imp": 562, "clk": 42, "ctr": 0.07395417884914011}, {"t": "Fully Guided in English", "ja": "全編英語のガイド付き", "lb": "low", "imp": 744, "clk": 16, "ctr": 0.021475311435980114}, {"t": "Built Around Your Fav Anime", "ja": "好きなアニメに合わせて設計", "lb": "good", "imp": 311, "clk": 13, "ctr": 0.04231874553742708}, {"t": "Anime Pilgrimage in Akiba", "ja": "秋葉原でアニメ聖地巡礼", "lb": "learn", "imp": 330, "clk": null, "ctr": null}, {"t": "Retro Games, Figures, Doujin", "ja": "レトロゲーム・フィギュア・同人", "lb": "low", "imp": 521, "clk": 11, "ctr": 0.020471504553831916}, {"t": "Half-Day Walking Tour", "ja": "半日の徒歩ツアー", "lb": "good", "imp": 590, "clk": 25, "ctr": 0.04239806038527508}, {"t": "Guided by a Local Otaku", "ja": "地元のオタクが案内", "lb": "good", "imp": 472, "clk": 23, "ctr": 0.04912131274131487}, {"t": "Book Direct With Your Guide", "ja": "ガイドに直接予約", "lb": "low", "imp": 363, "clk": 10, "ctr": 0.028501649946881147}, {"t": "Akihabara Anime Walking Tour", "ja": "秋葉原アニメ・ウォーキングツアー", "lb": "best", "imp": 615, "clk": 37, "ctr": 0.06075875529780373}, {"t": "A Route Made for Your Fandom", "ja": "あなたの推しのためのルート", "lb": "learn", "imp": 453, "clk": null, "ctr": null}, {"t": "Pilgrimage Map PDF Included", "ja": "聖地マップPDF付き", "lb": "good", "imp": 257, "clk": 13, "ctr": 0.04870399212697938}], "B": [{"t": "Akihabara, Minus the Overwhelm", "ja": "圧倒されない秋葉原", "lb": "good", "imp": 649, "clk": 31, "ctr": 0.04773413512783123}, {"t": "Find Exactly What You Came For", "ja": "探しているものを、ちゃんと見つける", "lb": "best", "imp": 505, "clk": 32, "ctr": 0.06412410662602826}, {"t": "Spots You'd Never Find Alone", "ja": "一人では見つからない場所へ", "lb": "best", "imp": 453, "clk": 31, "ctr": 0.06828304410949348}, {"t": "A Local Otaku Friend for a Day", "ja": "一日だけの、地元オタクの友達", "lb": "best", "imp": 537, "clk": 40, "ctr": 0.07486191878933268}, {"t": "Not a Tour. A Day Out.", "ja": "ツアーではなく、一日のおでかけ", "lb": "good", "imp": 410, "clk": 16, "ctr": 0.03831588099277824}, {"t": "Your Fandom Sets the Route", "ja": "ルートはあなたの推しで決まる", "lb": "good", "imp": 304, "clk": 12, "ctr": 0.03882536187063834}, {"t": "Kids & Teens Love This Tour", "ja": "子どもにも十代にも大好評", "lb": "good", "imp": 285, "clk": 12, "ctr": 0.04347329584386518}, {"t": "Anime Beginners Welcome Too", "ja": "アニメ初心者も歓迎", "lb": "learn", "imp": 261, "clk": null, "ctr": null}, {"t": "Skip the Maze, Find the Gems", "ja": "迷路をとばして、お宝へ", "lb": "good", "imp": 621, "clk": 26, "ctr": 0.04189789490319456}, {"t": "A Day Made Around You", "ja": "あなたを中心に組んだ一日", "lb": "low", "imp": 397, "clk": 8, "ctr": 0.019811050869493307}, {"t": "Rated 4.96 by 171 Guests", "ja": "171人の評価で4.96", "lb": "good", "imp": 308, "clk": 13, "ctr": 0.04126670517153205}, {"t": "A Trip Highlight, Guests Say", "ja": "旅のハイライトだとゲストは言う", "lb": "good", "imp": 509, "clk": 19, "ctr": 0.03805731044739089}, {"t": "Arcades, Figures & Hidden Gems", "ja": "アーケード、フィギュア、隠れた名店", "lb": "learn", "imp": 402, "clk": null, "ctr": null}, {"t": "Chat With Your Guide All Trip", "ja": "旅のあいだずっとガイドに相談できる", "lb": "low", "imp": 473, "clk": 9, "ctr": 0.01864791471868548}, {"t": "Private. Your Pace. English.", "ja": "プライベートで、自分のペースで、英語で", "lb": "low", "imp": 660, "clk": 18, "ctr": 0.027574477454358794}]}};
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const int = n => Math.round(n).toLocaleString('en-US');
+const yen = n => '¥' + int(n);
+const pct = (n, d = 2) => (n * 100).toFixed(d) + '%';
+const sgn = (n, d = 0) => (n >= 0 ? '+' : '−') + Math.abs(n * 100).toFixed(d) + '%';
+const sum = (a, k) => a.reduce((x, y) => x + y[k], 0);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const LBL = { best: '最良', good: '良', low: '低', learn: '学習中' };
+const SIDE = { A: { n: 'A', name: '事実・安心', role: 'チャンピオン' }, B: { n: 'B', name: '感情・便益', role: '挑戦者' } };
+const md = iso => { const d = new Date(iso + 'T00:00:00Z'); return (d.getUTCMonth() + 1) + '/' + d.getUTCDate(); };
+const addDays = (iso, n) => { const d = new Date(iso + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+
+function tot(s) {
+  const d = AB.days.map(x => x[s]);
+  const imp = sum(d, 'imp'), clk = sum(d, 'clk'), cost = sum(d, 'cost'), bc = sum(d, 'bc');
+  return { imp, clk, cost, bc, ctr: clk / imp, cpc: cost / clk, bcr: bc / clk };
+}
+const T = { A: tot('A'), B: tot('B') };
+const rel = (b, a) => (b - a) / a;
+/* dir: +1=高いほど良い / −1=低いほど良い / 0=良し悪しなし */
+const METRICS = [
+  { k: 'imp', l: '表示回数', f: int, dir: 0 },
+  { k: 'clk', l: 'クリック', f: int, dir: 1 },
+  { k: 'ctr', l: 'CTR', f: pct, dir: 1 },
+  { k: 'cpc', l: 'クリック単価', f: yen, dir: -1 },
+  { k: 'cost', l: '費用', f: yen, dir: 0 },
+  { k: 'bc', l: 'book_click', f: int, dir: 1 },
+  { k: 'bcr', l: 'book_click率', f: pct, dir: 1, note: 'クリックあたり' },
+];
+/* 差（Bを基準にAと比べた相対%）と、どちらが良いか */
+const DIFF = METRICS.map(m => {
+  const d = rel(T.B[m.k], T.A[m.k]);
+  const better = m.dir === 0 ? null : ((d * m.dir) > 0.005 ? 'B' : (d * m.dir) < -0.005 ? 'A' : null);
+  return { ...m, a: T.A[m.k], b: T.B[m.k], d, better };
+});
+const DM = Object.fromEntries(DIFF.map(x => [x.k, x]));
+
+/* 判定（ab-test-rules.md）: 各広告100クリック未満は判定しない / 2週間以上・表示1,000回以上 / CTR差は相対20%以上で勝ち */
+function verdictOf() {
+  const n = AB.days.length, last = AB.days[n - 1].date;
+  const g1 = T.A.clk >= AB.min && T.B.clk >= AB.min;
+  const g2 = n >= 14 && T.A.imp >= 1000 && T.B.imp >= 1000;
+  const dCtr = DM.ctr.d, dBcr = DM.bcr.d;
+  const g3 = Math.abs(dCtr) >= 0.20;
+  const lead = dCtr >= 0 ? 'B' : 'A';
+  const short = ['A', 'B'].filter(s => T[s].clk < AB.min).map(s => ({ s, need: AB.min - T[s].clk }));
+  const perDay = s => AB.days.slice(-7).reduce((a, x) => a + x[s].clk, 0) / 7;
+  const eta = short.length ? Math.max(...short.map(x => Math.ceil(x.need / perDay(x.s)))) : 0;
+  const etaDate = addDays(last, eta);
+  let judgeDay = AB.start, k = 0;
+  while (judgeDay <= etaDate) { k++; judgeDay = addDays(AB.start, 7 * k); }
+  const state = !(g1 && g2) ? 'pending' : g3 ? 'win' : 'draw';
+  const bcAgree = (dBcr >= 0) === (dCtr >= 0) && Math.abs(dBcr) >= 0.10;
+  return { n, last, g1, g2, g3, dCtr, dBcr, lead, short, eta, etaDate, judgeDay, state, winner: state === 'win' ? lead : null, bcAgree };
+}
+const V = verdictOf();
+const lowAssets = s => AB.assets[s].filter(a => a.lb === 'low');
+const bestAssets = s => AB.assets[s].filter(a => a.lb === 'best');
+
+function nextSteps() {
+  const L = V.lead, O = L === 'A' ? 'B' : 'A';
+  const lows = lowAssets(O).map(a => a.t);
+  if (V.state === 'pending') return [
+    { t: '今週は触らない。判定は保留', d: V.short.map(x => `広告${x.s}あと${x.need}クリック`).join('・') + `。100クリックに届くのは ${md(V.etaDate)} ごろ、週1判定の次の日は ${md(V.judgeDay)}。` },
+    { t: `現時点の傾向は広告${L}が優勢（CTR ${sgn(V.dCtr)}）`, d: `勝ち基準の相対+20%は超えているが、データ量ゲートが未達なので勝ち宣言はしない。book_click率は ${sgn(V.dBcr, 1)}（${V.bcAgree ? 'CTRと同じ向き' : 'ほぼ差なし'}）。` },
+    { t: `広告${L}が勝った時の準備: 挑戦者Cの下書き`, d: `広告${O}を止め、広告${L}の「最良」見出しを残す。Cは軸を1つだけ変える（訴求の角度、または見出し1〜3本の差し替え）。` },
+    { t: `広告${O}の「低」見出しを差し替え候補にメモ`, d: (lows.length ? lows.join(' / ') : '（低ラベルなし）') + '。差し替えは判定日にまとめて行う。' },
+  ];
+  if (V.state === 'win') return [
+    { t: `広告${O}を停止する`, d: `CTR ${sgn(V.dCtr)}・判定ゲート通過。` },
+    { t: `広告${L}の「最良」見出しを残して挑戦者Cを作る`, d: '軸は1つだけ。ピン留めは付けない。' },
+    { t: '変更をコックピットの ADS.changes に1行', d: '現場（土屋カエデ）担当のファイルなので、依頼を出す。' },
+  ];
+  return [{ t: '据え置いて延長', d: '差が相対20%未満。あと1週間回して再判定。' }];
+}
+
+/* ── 描画の小道具 ── */
+function chart(host, o) {
+  const W = Math.max(host.clientWidth || 320, 240), H = o.H || 170;
+  const pl = 34, pr = 6, pt = 8, pb = 20, iw = W - pl - pr, ih = H - pt - pb, n = AB.days.length;
+  const all = o.series.flatMap(s => s.data);
+  const max = o.ymax || Math.ceil(Math.max(...all) * 1.12 / (o.step || 1)) * (o.step || 1);
+  const x = i => pl + iw * (i + .5) / n;
+  const fmt = o.fmt || (v => v);
+  let g = '';
+  if (o.mirror) {
+    const y0 = pt + ih / 2, hh = ih / 2;
+    [0, .5, 1].forEach(t => { [-1, 1].forEach(sg => { const yy = y0 - sg * hh * t; g += `<line x1="${pl}" x2="${W - pr}" y1="${yy}" y2="${yy}" class="gl${t === 0 ? ' z' : ''}"/>`; }); if (t) g += `<text x="${pl - 6}" y="${y0 - hh * t + 4}" class="ay">${fmt(max * t)}</text><text x="${pl - 6}" y="${y0 + hh * t + 4}" class="ay">${fmt(max * t)}</text>`; });
+    const bw = Math.min(iw / n * .62, 22);
+    o.series.forEach((s, si) => s.data.forEach((v, i) => { const h = v / max * hh, yy = si === 0 ? y0 - h : y0; g += `<rect x="${x(i) - bw / 2}" y="${yy}" width="${bw}" height="${h}" fill="${s.color}" rx="1.5"><title>${md(AB.days[i].date)} ${s.name} ${fmt(v)}</title></rect>`; }));
+  } else {
+    const y = v => pt + ih * (1 - v / max);
+    [0, 1, 2, 3].forEach(t => { const v = max * t / 3; g += `<line x1="${pl}" x2="${W - pr}" y1="${y(v)}" y2="${y(v)}" class="gl${t === 0 ? ' z' : ''}"/><text x="${pl - 6}" y="${y(v) + 4}" class="ay">${fmt(v)}</text>`; });
+    if (o.type === 'bar') {
+      const k = o.series.length, gw = Math.min(iw / n * .78, 30), bw = gw / k;
+      o.series.forEach((s, si) => s.data.forEach((v, i) => { g += `<rect x="${x(i) - gw / 2 + si * bw}" y="${y(v)}" width="${bw - 1}" height="${pt + ih - y(v)}" fill="${s.color}" rx="1.5"><title>${md(AB.days[i].date)} ${s.name} ${fmt(v)}</title></rect>`; }));
+    } else {
+      o.series.forEach(s => {
+        g += `<polyline fill="none" stroke="${s.color}" stroke-width="2.2" stroke-linejoin="round" ${s.dash ? 'stroke-dasharray="4 3"' : ''} points="${s.data.map((v, i) => x(i) + ',' + y(v)).join(' ')}"/>`;
+        s.data.forEach((v, i) => { g += `<circle cx="${x(i)}" cy="${y(v)}" r="2.6" fill="#fff" stroke="${s.color}" stroke-width="1.6"><title>${md(AB.days[i].date)} ${s.name} ${fmt(v)}</title></circle>`; });
+      });
+    }
+  }
+  const every = W < 420 ? 3 : 2;
+  AB.days.forEach((d, i) => { if (i % every === 0) g += `<text x="${x(i)}" y="${H - 5}" class="ax">${md(d.date)}</text>`; });
+  host.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="${esc(o.label || '')}">${g}</svg>`;
+}
+function mount(fn) {
+  fn();
+  let t, lw = document.body.clientWidth;
+  new ResizeObserver(() => { if (document.body.clientWidth === lw) return; lw = document.body.clientWidth; clearTimeout(t); t = setTimeout(fn, 60); }).observe(document.body);
+}
+const DUMMY = 'ダミーデータ（実データではありません）';
+
+function reportH() { if (parent !== window) parent.postMessage({ ab: 1, h: document.documentElement.scrollHeight }, '*'); }
+addEventListener('load', () => { reportH(); new ResizeObserver(reportH).observe(document.body); });
+
+const A = T.A, B = T.B;
+const cA = '#0a0a0a', cB = '#4f46e5';
+
+$('#meta').innerHTML = `${md(AB.start)}〜${md(V.last)} ・ <b>${V.n}日目</b> ・ ¥${int(AB.budget)}/日<span class="dummy">ダミーデータ</span>`;
+
+/* タイル */
+const stTxt = V.state === 'pending' ? '保留' : V.state === 'win' ? V.winner + '勝ち' : '引き分け';
+const stSub = V.state === 'pending'
+  ? V.short.map(x => `広告${x.s}があと${x.need}クリック`).join('、') + `<br>いまは広告${V.lead}が優勢（判定はまだしない）`
+  : V.state === 'win' ? `CTR差 ${sgn(V.dCtr)}` : '差が20%未満。据え置き';
+$('#tiles').innerHTML = `
+  <div class="tile main ${V.state === 'pending' ? 'pend' : 'up'}"><label>判定</label><b>${stTxt}</b><small>${stSub}</small></div>
+  <div class="tile up"><label>CTR差（B ÷ A）</label><b>${sgn(V.dCtr)}</b><small>${pct(A.ctr)} → ${pct(B.ctr)}<br>勝ち基準は相対 +20%</small></div>
+  <div class="tile"><label>book_click</label><b>${A.bc} : ${B.bc}</b><small>クリックあたり ${pct(A.bcr, 1)} / ${pct(B.bcr, 1)}（${sgn(V.dBcr, 1)}）</small></div>
+  <div class="tile"><label>費用（2本の合計）</label><b>${yen(A.cost + B.cost)}</b><small>予算 ${yen(AB.budget * V.n)} のうち ${Math.round((A.cost + B.cost) / (AB.budget * V.n) * 100)}%</small></div>`;
+
+/* 判定ライン */
+$('#bars').innerHTML = ['A', 'B'].map(s => { const t = T[s], ok = t.clk >= AB.min, w = Math.min(t.clk / 120, 1) * 100;
+  return `<div class="bar"><i style="color:${s === 'A' ? cA : cB}">${s}</i><div class="track" style="--c:${ok ? 'var(--good)' : s === 'A' ? cA : cB};--mark:${AB.min / 120 * 100}%"><u style="width:${w}%"></u><s></s></div><em>${t.clk} <small>/ ${AB.min}</small></em></div>`; }).join('');
+
+/* 判定の基準（案3の階段）。数値は上の tot()/verdictOf() をそのまま使う */
+{
+  const R = 40, pos = v => 50 + Math.max(-R, Math.min(R, v * 100)) / R * 50;
+  const pg = s => { const t = T[s], ok = t.clk >= AB.min; return `<div class="kz-pg"><i style="color:${s === 'A' ? cA : cB}">${s}</i><div class="kz-tk" style="--c:${ok ? 'var(--good)' : s === 'A' ? cA : cB};--m:${AB.min / 120 * 100}%"><u style="width:${Math.min(t.clk / 120, 1) * 100}%"></u><s></s></div><em>${t.clk} <small>/ ${AB.min}</small></em></div>`; };
+  const bcNote = Math.abs(V.dBcr) < 0.10 ? `book_click率（クリックあたり）は ${sgn(V.dBcr, 1)} でほぼ同じ。<b>クリックは増えるが、予約ボタンまで押す割合は変わらない</b>可能性があるので、CVが入るまで慎重に。` : `book_click率も ${sgn(V.dBcr, 1)} で、CTRと${V.bcAgree ? '同じ向き' : '逆向き'}。`;
+  const dtxt = s => `<div class="kz-pg t2"><i style="color:${s === 'A' ? cA : cB}">${s}</i><span>${V.n}日 ／ 表示 ${int(T[s].imp)}回</span></div>`;
+  const steps = [
+    { st: V.g1 ? 'ok' : 'ng', n: 1, t: 'データ量', s: '各広告 100クリック以上', chip: V.g1 ? '通過' : '未達',
+      b: pg('A') + pg('B') + `<p class="kz-note">${V.g1 ? '両方が判定ラインに到達。' : V.short.map(x => `<b>広告${x.s}があと${x.need}クリック</b>`).join('、') + `。今のペースだと ${md(V.etaDate)} ごろ到達。`}</p>` },
+    { st: V.g2 ? 'ok' : 'ng', n: 2, t: '期間と表示回数', s: '2週間以上・各1,000回以上', chip: V.g2 ? '通過' : '未達', b: dtxt('A') + dtxt('B') },
+    { st: V.g3 ? (V.bcAgree || Math.abs(V.dBcr) < .1 ? 'wn' : 'ok') : 'ng', n: 3, t: '差の大きさ', s: 'CTR差が相対20%以上', chip: V.g3 ? '基準超え（注意あり）' : '差が小さい',
+      b: `<div class="kz-nl"><div class="rl"></div><div class="z"></div><div class="th" style="left:${pos(-.2)}%"></div><div class="th" style="left:${pos(.2)}%"></div>${[-.4, -.2, 0, .2, .4].map(v => `<span class="t" style="left:${pos(v)}%">${v ? sgn(v) : '0'}</span>`).join('')}<div class="pt" style="left:${pos(V.dCtr)}%;--c:${V.dCtr >= 0 ? cB : cA}"><b style="background:${V.dCtr >= 0 ? cB : cA}">CTR ${sgn(V.dCtr)}</b></div></div><p class="kz-note">CTR <b>${pct(A.ctr)}</b>（A）→ <b>${pct(B.ctr)}</b>（B）。${bcNote}</p>` },
+    { st: 'zz', n: 4, t: '判定', s: '1〜3がそろったら宣言', chip: V.state === 'pending' ? '保留' : '宣言可',
+      b: `<div class="kz-res"><span class="lab">RESULT</span><p class="big">${V.state === 'pending' ? '保留' : V.state === 'win' ? V.winner + ' の勝ち' : '引き分け'}</p><p>${V.state === 'pending' ? `傾向は<b>広告${V.lead}が優勢</b>。ただし手順1で止まっているので、勝ちは宣言しない。次の判定日は <b>${md(V.judgeDay)}</b>（週1回）。` : '手順1〜3を通過。'}</p></div>` },
+  ];
+  $('#kz-steps').innerHTML = steps.map(x => `<div class="kz-st"><div class="kz-rail"><span class="kz-dot ${x.st}">${x.st === 'ok' ? '✓' : x.n}</span></div><div class="kz-body">${x.st === 'zz' ? x.b : `<div class="kz-hd"><h4>${x.n}. ${x.t}<span>${x.s}</span></h4><span class="kz-chip ${x.st}">${x.chip}</span></div>${x.b}`}</div></div>`).join('');
+}
+
+/* 比較表 */
+$('#cmp').innerHTML = `<thead><tr><th>指標</th><th class="hA">広告A 事実・安心</th><th class="hB">広告B 感情・便益</th><th>差（B÷A）</th></tr></thead><tbody>` +
+  DIFF.map(r => `<tr><td>${r.l}${r.note ? `<small>${r.note}</small>` : ''}</td><td class="v">${r.f(r.a)}</td><td class="v">${r.f(r.b)}</td><td class="diff ${r.better === 'B' ? 'g' : r.better === 'A' ? 'r' : 'n'}">${sgn(r.d, 1)}${r.better ? (r.better === 'B' ? ' ▲' : ' ▼') : ''}</td></tr>`).join('') +
+  `<tr class="cv"><td>CV（GA4 book_direct）<small>取り込み後に判定指標へ</small></td><td class="v">—</td><td class="v">—</td><td class="diff n">未計測</td></tr></tbody>`;
+
+/* 推移 */
+mount(() => {
+  chart($('#c1'), { type: 'bar', H: 150, step: 5, label: '日別クリック', series: [{ name: 'A', color: cA, data: AB.days.map(x => x.A.clk) }, { name: 'B', color: cB, data: AB.days.map(x => x.B.clk) }] });
+  chart($('#c2'), { type: 'line', H: 150, ymax: .06, fmt: v => (v * 100).toFixed(0) + '%', label: '日別CTR', series: [{ name: 'A', color: cA, data: AB.days.map(x => x.A.clk / x.A.imp) }, { name: 'B', color: cB, data: AB.days.map(x => x.B.clk / x.B.imp) }] });
+});
+
+/* 次の一手 */
+$('#acts').innerHTML = nextSteps().map((s, i) => `<li><i>${i + 1}</i><div><b>${esc(s.t)}</b><p>${esc(s.d)}</p></div></li>`).join('');
+$('#loop').textContent = '判定は週1回だけ（日次で触ると学習が壊れる）。勝敗が出るたびに、負けた方を止めて挑戦者を1本足す。';
+
+/* アセット */
+$('#assets').innerHTML = ['A', 'B'].map(s => {
+  const ord = { best: 0, good: 1, learn: 2, low: 3 };
+  const rows = [...AB.assets[s]].sort((a, b) => ord[a.lb] - ord[b.lb] || b.imp - a.imp);
+  return `<div><div class="ah"><h3>見出し別 <span class="pill ${s === 'B' ? 'B' : ''}">広告${s}</span></h3><span>表示 / CTR</span></div>` +
+    rows.map(a => `<div class="as"><span class="lb ${a.lb}">${LBL[a.lb]}</span><p>${esc(a.t)}<small>${esc(a.ja)}</small></p><span class="n"><b>${int(a.imp)}</b></span><span class="n">${a.ctr == null ? '—' : '<b>' + pct(a.clk / a.imp, 1) + '</b>'}</span></div>`).join('') + '</div>';
+}).join('');
+</script>
+<script src="devbar.js"></script>
+</body>
+</html>
