@@ -211,13 +211,13 @@ body,p,li,td,th,div,span,b,small,h1,h2,h3{word-break:auto-phrase;line-break:stri
     </div>
 
     <div class="assets" id="assets"></div>
-    <div class="foot"><span>Google のラベル（最良・良・低・学習中）は各見出しの実績評価。想定表示。</span><span class="mono">ルール: ads/ab-test-rules.md</span></div>
+    <div class="foot"><span>Google のラベル（最良・良・低・学習中）は各見出しの実績評価。</span><span class="mono">ルール: ads/ab-test-rules.md</span></div>
   </section>
 </div>
 
 <script>
 /* ── 共通ロジック（3案とも同じ計算。見た目だけ案ごと） ── */
-const AB = {"start": "2026-09-30", "min": 100, "budget": 1300, "days": [{"date": "2026-09-30", "w": "水", "A": {"imp": 137, "clk": 5, "cost": 408, "bc": 1}, "B": {"imp": 250, "clk": 10, "cost": 690, "bc": 3}}, {"date": "2026-10-01", "w": "木", "A": {"imp": 159, "clk": 7, "cost": 533, "bc": 1}, "B": {"imp": 149, "clk": 7, "cost": 623, "bc": 2}}, {"date": "2026-10-02", "w": "金", "A": {"imp": 185, "clk": 8, "cost": 582, "bc": 0}, "B": {"imp": 198, "clk": 8, "cost": 659, "bc": 1}}, {"date": "2026-10-03", "w": "土", "A": {"imp": 113, "clk": 4, "cost": 311, "bc": 0}, "B": {"imp": 203, "clk": 10, "cost": 861, "bc": 0}}, {"date": "2026-10-04", "w": "日", "A": {"imp": 99, "clk": 4, "cost": 302, "bc": 0}, "B": {"imp": 114, "clk": 6, "cost": 504, "bc": 0}}, {"date": "2026-10-05", "w": "月", "A": {"imp": 278, "clk": 9, "cost": 697, "bc": 1}, "B": {"imp": 114, "clk": 5, "cost": 423, "bc": 0}}, {"date": "2026-10-06", "w": "火", "A": {"imp": 168, "clk": 7, "cost": 650, "bc": 1}, "B": {"imp": 131, "clk": 7, "cost": 532, "bc": 1}}, {"date": "2026-10-07", "w": "水", "A": {"imp": 190, "clk": 6, "cost": 428, "bc": 0}, "B": {"imp": 110, "clk": 6, "cost": 439, "bc": 2}}, {"date": "2026-10-08", "w": "木", "A": {"imp": 166, "clk": 7, "cost": 535, "bc": 0}, "B": {"imp": 118, "clk": 6, "cost": 501, "bc": 0}}, {"date": "2026-10-09", "w": "金", "A": {"imp": 156, "clk": 6, "cost": 482, "bc": 1}, "B": {"imp": 121, "clk": 5, "cost": 425, "bc": 1}}, {"date": "2026-10-10", "w": "土", "A": {"imp": 227, "clk": 7, "cost": 488, "bc": 1}, "B": {"imp": 144, "clk": 8, "cost": 712, "bc": 1}}, {"date": "2026-10-11", "w": "日", "A": {"imp": 214, "clk": 7, "cost": 533, "bc": 3}, "B": {"imp": 185, "clk": 10, "cost": 755, "bc": 1}}, {"date": "2026-10-12", "w": "月", "A": {"imp": 97, "clk": 4, "cost": 288, "bc": 1}, "B": {"imp": 238, "clk": 11, "cost": 946, "bc": 0}}, {"date": "2026-10-13", "w": "火", "A": {"imp": 173, "clk": 6, "cost": 483, "bc": 0}, "B": {"imp": 142, "clk": 8, "cost": 581, "bc": 0}}], "assets": {"A": [{"t": "Private Akihabara Anime Tour", "ja": "プライベート秋葉原アニメツアー", "lb": "best", "imp": 404, "clk": 23, "ctr": 0.05801698347849004}, {"t": "Akihabara Tour With a Local", "ja": "地元の人と行く秋葉原ツアー", "lb": "good", "imp": 515, "clk": 20, "ctr": 0.038811984946845894}, {"t": "Rated 4.96 on Airbnb", "ja": "Airbnbで4.96の評価", "lb": "good", "imp": 256, "clk": 10, "ctr": 0.038977975930044664}, {"t": "4.96 Stars From 171 Reviews", "ja": "171件のレビューで星4.96", "lb": "good", "imp": 457, "clk": 18, "ctr": 0.03973322745609504}, {"t": "100% Private, Never Grouped", "ja": "100%プライベート、相席なし", "lb": "best", "imp": 562, "clk": 42, "ctr": 0.07395417884914011}, {"t": "Fully Guided in English", "ja": "全編英語のガイド付き", "lb": "low", "imp": 744, "clk": 16, "ctr": 0.021475311435980114}, {"t": "Built Around Your Fav Anime", "ja": "好きなアニメに合わせて設計", "lb": "good", "imp": 311, "clk": 13, "ctr": 0.04231874553742708}, {"t": "Anime Pilgrimage in Akiba", "ja": "秋葉原でアニメ聖地巡礼", "lb": "learn", "imp": 330, "clk": null, "ctr": null}, {"t": "Retro Games, Figures, Doujin", "ja": "レトロゲーム・フィギュア・同人", "lb": "low", "imp": 521, "clk": 11, "ctr": 0.020471504553831916}, {"t": "Half-Day Walking Tour", "ja": "半日の徒歩ツアー", "lb": "good", "imp": 590, "clk": 25, "ctr": 0.04239806038527508}, {"t": "Guided by a Local Otaku", "ja": "地元のオタクが案内", "lb": "good", "imp": 472, "clk": 23, "ctr": 0.04912131274131487}, {"t": "Book Direct With Your Guide", "ja": "ガイドに直接予約", "lb": "low", "imp": 363, "clk": 10, "ctr": 0.028501649946881147}, {"t": "Akihabara Anime Walking Tour", "ja": "秋葉原アニメ・ウォーキングツアー", "lb": "best", "imp": 615, "clk": 37, "ctr": 0.06075875529780373}, {"t": "A Route Made for Your Fandom", "ja": "あなたの推しのためのルート", "lb": "learn", "imp": 453, "clk": null, "ctr": null}, {"t": "Pilgrimage Map PDF Included", "ja": "聖地マップPDF付き", "lb": "good", "imp": 257, "clk": 13, "ctr": 0.04870399212697938}], "B": [{"t": "Akihabara, Minus the Overwhelm", "ja": "圧倒されない秋葉原", "lb": "good", "imp": 649, "clk": 31, "ctr": 0.04773413512783123}, {"t": "Find Exactly What You Came For", "ja": "探しているものを、ちゃんと見つける", "lb": "best", "imp": 505, "clk": 32, "ctr": 0.06412410662602826}, {"t": "Spots You'd Never Find Alone", "ja": "一人では見つからない場所へ", "lb": "best", "imp": 453, "clk": 31, "ctr": 0.06828304410949348}, {"t": "A Local Otaku Friend for a Day", "ja": "一日だけの、地元オタクの友達", "lb": "best", "imp": 537, "clk": 40, "ctr": 0.07486191878933268}, {"t": "Not a Tour. A Day Out.", "ja": "ツアーではなく、一日のおでかけ", "lb": "good", "imp": 410, "clk": 16, "ctr": 0.03831588099277824}, {"t": "Your Fandom Sets the Route", "ja": "ルートはあなたの推しで決まる", "lb": "good", "imp": 304, "clk": 12, "ctr": 0.03882536187063834}, {"t": "Kids & Teens Love This Tour", "ja": "子どもにも十代にも大好評", "lb": "good", "imp": 285, "clk": 12, "ctr": 0.04347329584386518}, {"t": "Anime Beginners Welcome Too", "ja": "アニメ初心者も歓迎", "lb": "learn", "imp": 261, "clk": null, "ctr": null}, {"t": "Skip the Maze, Find the Gems", "ja": "迷路をとばして、お宝へ", "lb": "good", "imp": 621, "clk": 26, "ctr": 0.04189789490319456}, {"t": "A Day Made Around You", "ja": "あなたを中心に組んだ一日", "lb": "low", "imp": 397, "clk": 8, "ctr": 0.019811050869493307}, {"t": "Rated 4.96 by 171 Guests", "ja": "171人の評価で4.96", "lb": "good", "imp": 308, "clk": 13, "ctr": 0.04126670517153205}, {"t": "A Trip Highlight, Guests Say", "ja": "旅のハイライトだとゲストは言う", "lb": "good", "imp": 509, "clk": 19, "ctr": 0.03805731044739089}, {"t": "Arcades, Figures & Hidden Gems", "ja": "アーケード、フィギュア、隠れた名店", "lb": "learn", "imp": 402, "clk": null, "ctr": null}, {"t": "Chat With Your Guide All Trip", "ja": "旅のあいだずっとガイドに相談できる", "lb": "low", "imp": 473, "clk": 9, "ctr": 0.01864791471868548}, {"t": "Private. Your Pace. English.", "ja": "プライベートで、自分のペースで、英語で", "lb": "low", "imp": 660, "clk": 18, "ctr": 0.027574477454358794}]}};
+const AB = {"start": "2026-09-30", "min": 100, "budget": 1300, "real": true, "days": [{"date": "2026-09-30", "w": "水", "A": {"imp": 0, "clk": 0, "cost": 0, "bc": 0}, "B": {"imp": 0, "clk": 0, "cost": 0, "bc": 0}}], "assets": {"A": [{"t": "Private Akihabara Anime Tour", "ja": "プライベート秋葉原アニメツアー", "lb": "learn", "imp": 0, "clk": null, "ctr": null}, {"t": "Akihabara Tour With a Local", "ja": "地元の人と行く秋葉原ツアー", "lb": "learn", "imp": 0, "clk": null, "ctr": null}, {"t": "Rated 4.96 on Airbnb", "ja": "Airbnbで4.96の評価", "lb": "learn", "imp": 0, "clk": null, "ctr": null}, {"t": "4.96 Stars From 171 Reviews", "ja": "171件のレビューで星4.96", "lb": "learn", "imp": 0, "clk": null, "ctr": null}, {"t": "100% Private, Never Grouped", "ja": "100%プライベート、相席なし", "lb": "learn", "imp": 0, "clk": null, "ctr": null}, {"t": "Fully Guided in English", "ja": "全編英語のガイド付き", "lb": "learn", "imp": 0, "clk": null, "ctr": null}, {"t": "Built Around Your Fav Anime", "ja": "好きなアニメに合わせて設計", "lb": "learn", "imp": 0, "clk": null, "ctr": null}, {"t": "Anime Pilgrimage in Akiba", "ja": "秋葉原でアニメ聖地巡礼", "lb": "learn", "imp": 0, "clk": null, "ctr": null}, {"t": "Retro Games, Figures, Doujin", "ja": "レトロゲーム・フィギュア・同人", "lb": "learn", "imp": 0, "clk": null, "ctr": null}, {"t": "Half-Day Walking Tour", "ja": "半日の徒歩ツアー", "lb": "learn", "imp": 0, "clk": null, "ctr": null}, {"t": "Guided by a Local Otaku", "ja": "地元のオタクが案内", "lb": "learn", "imp": 0, "clk": null, "ctr": null}, {"t": "Book Direct With Your Guide", "ja": "ガイドに直接予約", "lb": "learn", "imp": 0, "clk": null, "ctr": null}, {"t": "Akihabara Anime Walking Tour", "ja": "秋葉原アニメ・ウォーキングツアー", "lb": "learn", "imp": 0, "clk": null, "ctr": null}, {"t": "A Route Made for Your Fandom", "ja": "あなたの推しのためのルート", "lb": "learn", "imp": 0, "clk": null, "ctr": null}, {"t": "Pilgrimage Map PDF Included", "ja": "聖地マップPDF付き", "lb": "learn", "imp": 0, "clk": null, "ctr": null}], "B": [{"t": "Akihabara, Minus the Overwhelm", "ja": "圧倒されない秋葉原", "lb": "learn", "imp": 0, "clk": null, "ctr": null}, {"t": "Find Exactly What You Came For", "ja": "探しているものを、ちゃんと見つける", "lb": "learn", "imp": 0, "clk": null, "ctr": null}, {"t": "Spots You'd Never Find Alone", "ja": "一人では見つからない場所へ", "lb": "learn", "imp": 0, "clk": null, "ctr": null}, {"t": "A Local Otaku Friend for a Day", "ja": "一日だけの、地元オタクの友達", "lb": "learn", "imp": 0, "clk": null, "ctr": null}, {"t": "Not a Tour. A Day Out.", "ja": "ツアーではなく、一日のおでかけ", "lb": "learn", "imp": 0, "clk": null, "ctr": null}, {"t": "Your Fandom Sets the Route", "ja": "ルートはあなたの推しで決まる", "lb": "learn", "imp": 0, "clk": null, "ctr": null}, {"t": "Kids & Teens Love This Tour", "ja": "子どもにも十代にも大好評", "lb": "learn", "imp": 0, "clk": null, "ctr": null}, {"t": "Anime Beginners Welcome Too", "ja": "アニメ初心者も歓迎", "lb": "learn", "imp": 0, "clk": null, "ctr": null}, {"t": "Skip the Maze, Find the Gems", "ja": "迷路をとばして、お宝へ", "lb": "learn", "imp": 0, "clk": null, "ctr": null}, {"t": "A Day Made Around You", "ja": "あなたを中心に組んだ一日", "lb": "learn", "imp": 0, "clk": null, "ctr": null}, {"t": "Rated 4.96 by 171 Guests", "ja": "171人の評価で4.96", "lb": "learn", "imp": 0, "clk": null, "ctr": null}, {"t": "A Trip Highlight, Guests Say", "ja": "旅のハイライトだとゲストは言う", "lb": "learn", "imp": 0, "clk": null, "ctr": null}, {"t": "Arcades, Figures & Hidden Gems", "ja": "アーケード、フィギュア、隠れた名店", "lb": "learn", "imp": 0, "clk": null, "ctr": null}, {"t": "Chat With Your Guide All Trip", "ja": "旅のあいだずっとガイドに相談できる", "lb": "learn", "imp": 0, "clk": null, "ctr": null}, {"t": "Private. Your Pace. English.", "ja": "プライベートで、自分のペースで、英語で", "lb": "learn", "imp": 0, "clk": null, "ctr": null}]}};
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const int = n => Math.round(n).toLocaleString('en-US');
@@ -228,16 +228,16 @@ const sum = (a, k) => a.reduce((x, y) => x + y[k], 0);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const LBL = { best: '最良', good: '良', low: '低', learn: '学習中' };
 const SIDE = { A: { n: 'A', name: '事実・安心', role: 'チャンピオン' }, B: { n: 'B', name: '感情・便益', role: '挑戦者' } };
-const md = iso => { const d = new Date(iso + 'T00:00:00Z'); return (d.getUTCMonth() + 1) + '/' + d.getUTCDate(); };
+const md = iso => { if (!iso) return '未定'; const d = new Date(iso + 'T00:00:00Z'); return (d.getUTCMonth() + 1) + '/' + d.getUTCDate(); };
 const addDays = (iso, n) => { const d = new Date(iso + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
 
 function tot(s) {
   const d = AB.days.map(x => x[s]);
   const imp = sum(d, 'imp'), clk = sum(d, 'clk'), cost = sum(d, 'cost'), bc = sum(d, 'bc');
-  return { imp, clk, cost, bc, ctr: clk / imp, cpc: cost / clk, bcr: bc / clk };
+  return { imp, clk, cost, bc, ctr: imp ? clk / imp : 0, cpc: clk ? cost / clk : 0, bcr: clk ? bc / clk : 0 };
 }
 const T = { A: tot('A'), B: tot('B') };
-const rel = (b, a) => (b - a) / a;
+const rel = (b, a) => a ? (b - a) / a : 0;
 /* dir: +1=高いほど良い / −1=低いほど良い / 0=良し悪しなし */
 const METRICS = [
   { k: 'imp', l: '表示回数', f: int, dir: 0 },
@@ -266,10 +266,10 @@ function verdictOf() {
   const lead = dCtr >= 0 ? 'B' : 'A';
   const short = ['A', 'B'].filter(s => T[s].clk < AB.min).map(s => ({ s, need: AB.min - T[s].clk }));
   const perDay = s => AB.days.slice(-7).reduce((a, x) => a + x[s].clk, 0) / 7;
-  const eta = short.length ? Math.max(...short.map(x => Math.ceil(x.need / perDay(x.s)))) : 0;
-  const etaDate = addDays(last, eta);
+  const eta = short.length ? Math.max(...short.map(x => perDay(x.s) ? Math.ceil(x.need / perDay(x.s)) : Infinity)) : 0;
+  const etaDate = isFinite(eta) ? addDays(last, eta) : null;  // クリック0のうちは到達日を出さない
   let judgeDay = AB.start, k = 0;
-  while (judgeDay <= etaDate) { k++; judgeDay = addDays(AB.start, 7 * k); }
+  while (judgeDay <= (etaDate || last)) { k++; judgeDay = addDays(AB.start, 7 * k); }
   const state = !(g1 && g2) ? 'pending' : g3 ? 'win' : 'draw';
   const bcAgree = (dBcr >= 0) === (dCtr >= 0) && Math.abs(dBcr) >= 0.10;
   return { n, last, g1, g2, g3, dCtr, dBcr, lead, short, eta, etaDate, judgeDay, state, winner: state === 'win' ? lead : null, bcAgree };
@@ -300,7 +300,7 @@ function chart(host, o) {
   const W = Math.max(host.clientWidth || 320, 240), H = o.H || 170;
   const pl = 34, pr = 6, pt = 8, pb = 20, iw = W - pl - pr, ih = H - pt - pb, n = AB.days.length;
   const all = o.series.flatMap(s => s.data);
-  const max = o.ymax || Math.ceil(Math.max(...all) * 1.12 / (o.step || 1)) * (o.step || 1);
+  const max = o.ymax || Math.max(o.step || 1, Math.ceil(Math.max(...all) * 1.12 / (o.step || 1)) * (o.step || 1));
   const x = i => pl + iw * (i + .5) / n;
   const fmt = o.fmt || (v => v);
   let g = '';
@@ -331,7 +331,6 @@ function mount(fn) {
   let t, lw = document.body.clientWidth;
   new ResizeObserver(() => { if (document.body.clientWidth === lw) return; lw = document.body.clientWidth; clearTimeout(t); t = setTimeout(fn, 60); }).observe(document.body);
 }
-const DUMMY = 'ダミーデータ（実データではありません）';
 
 function reportH() { if (parent !== window) parent.postMessage({ ab: 1, h: document.documentElement.scrollHeight }, '*'); }
 addEventListener('load', () => { reportH(); new ResizeObserver(reportH).observe(document.body); });
@@ -339,7 +338,7 @@ addEventListener('load', () => { reportH(); new ResizeObserver(reportH).observe(
 const A = T.A, B = T.B;
 const cA = '#0a0a0a', cB = '#4f46e5';
 
-$('#meta').innerHTML = `${md(AB.start)}〜${md(V.last)} ・ <b>${V.n}日目</b> ・ ¥${int(AB.budget)}/日<span class="dummy">ダミーデータ</span>`;
+$('#meta').innerHTML = `${md(AB.start)}〜${md(V.last)} ・ <b>${V.n}日目</b> ・ ¥${int(AB.budget)}/日${AB.real ? '' : '<span class="dummy">ダミーデータ</span>'}`;
 
 /* タイル */
 const stTxt = V.state === 'pending' ? '保留' : V.state === 'win' ? V.winner + '勝ち' : '引き分け';
@@ -382,7 +381,7 @@ $('#cmp').innerHTML = `<thead><tr><th>指標</th><th class="hA">広告A 事実�
 /* 推移 */
 mount(() => {
   chart($('#c1'), { type: 'bar', H: 150, step: 5, label: '日別クリック', series: [{ name: 'A', color: cA, data: AB.days.map(x => x.A.clk) }, { name: 'B', color: cB, data: AB.days.map(x => x.B.clk) }] });
-  chart($('#c2'), { type: 'line', H: 150, ymax: .06, fmt: v => (v * 100).toFixed(0) + '%', label: '日別CTR', series: [{ name: 'A', color: cA, data: AB.days.map(x => x.A.clk / x.A.imp) }, { name: 'B', color: cB, data: AB.days.map(x => x.B.clk / x.B.imp) }] });
+  chart($('#c2'), { type: 'line', H: 150, ymax: .06, fmt: v => (v * 100).toFixed(0) + '%', label: '日別CTR', series: [{ name: 'A', color: cA, data: AB.days.map(x => x.A.imp ? x.A.clk / x.A.imp : 0) }, { name: 'B', color: cB, data: AB.days.map(x => x.B.imp ? x.B.clk / x.B.imp : 0) }] });
 });
 
 /* 次の一手 */

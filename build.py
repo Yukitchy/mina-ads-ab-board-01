@@ -1,0 +1,66 @@
+#!/usr/bin/env python3
+"""Google広告スクリプトが毎朝ドライブに書くCSV 2本から、index.html の `const AB = {...};` を実データで書き換える。
+使い方: python3 build.py   （毎朝 launchd が実行 → 変更があれば push）"""
+import csv, json, re, sys
+from datetime import date, datetime, timedelta, timezone
+from pathlib import Path
+
+ROOT = Path.home() / "Library/CloudStorage/GoogleDrive-icchan417@gmail.com/マイドライブ/ads-export"
+HTML = Path(__file__).with_name("index.html")
+ADS = {"826392026602": "A", "826416311260": "B"}  # A=事実・安心 / B=感情・便益（広告グループ 206342583051）
+START = "2026-09-30"
+LB = {"BEST": "best", "GOOD": "good", "LOW": "low"}  # それ以外（LEARNING / PENDING / NOT_APPLICABLE）は学習中
+WD = "月火水木金土日"
+
+
+def load(latest):
+    with open(latest / "ad_by_day.csv", newline="") as f:
+        by_day = list(csv.DictReader(f))
+    with open(latest / "asset_by_ad.csv", newline="") as f:
+        assets = [r for r in csv.DictReader(f) if r["ad_group_ad_asset_view.field_type"] == "HEADLINE"]
+    return by_day, assets
+
+
+def build(by_day, assets, old, today):
+    yesterday = (today - timedelta(days=1)).isoformat()
+    days, d = [], date.fromisoformat(START)
+    while d.isoformat() <= max(START, yesterday):
+        days.append({"date": d.isoformat(), "w": WD[d.weekday()],
+                     "A": {"imp": 0, "clk": 0, "cost": 0, "bc": 0}, "B": {"imp": 0, "clk": 0, "cost": 0, "bc": 0}})
+        d += timedelta(days=1)
+    idx = {x["date"]: x for x in days}
+    for r in by_day:
+        s, day = ADS.get(r["ad_group_ad.ad.id"]), idx.get(r["segments.date"])
+        if not s or not day:
+            continue
+        day[s]["imp"] += int(r["metrics.impressions"])
+        day[s]["clk"] += int(r["metrics.clicks"])
+        day[s]["cost"] += round(int(r["metrics.cost_micros"]) / 1e6)
+    ja = {a["t"]: a.get("ja", "") for s in "AB" for a in old.get("assets", {}).get(s, [])}
+    out = {"A": [], "B": []}
+    for r in assets:
+        s = ADS.get(r["ad_group_ad.ad.id"])
+        if not s:
+            continue
+        t, lb = r["asset.text_asset.text"], LB.get(r.get("ad_group_ad_asset_view.performance_label", ""), "learn")
+        imp, clk = int(r["metrics.impressions"]), int(r["metrics.clicks"])
+        learn = lb == "learn"  # ab-test-rules.md: 学習中の見出しは clk/ctr を出さない
+        out[s].append({"t": t, "ja": ja.get(t, ""), "lb": lb, "imp": imp,
+                       "clk": None if learn else clk, "ctr": None if learn or not imp else clk / imp})
+    return {"start": START, "min": old.get("min", 100), "budget": old.get("budget", 1300), "real": True,
+            "days": days, "assets": out}
+
+
+def main():
+    folders = sorted(p for p in ROOT.glob("20*") if p.is_dir())
+    if not folders:
+        sys.exit(f"CSVのフォルダがない: {ROOT}")
+    html = HTML.read_text()
+    m = re.search(r"^const AB = (\{.*\});$", html, re.M)
+    ab = build(*load(folders[-1]), json.loads(m.group(1)), datetime.now(timezone(timedelta(hours=9))).date())
+    HTML.write_text(html[:m.start(1)] + json.dumps(ab, ensure_ascii=False) + html[m.end(1):])
+    print(f"{folders[-1].name}: {len(ab['days'])}日分 / 見出し A{len(ab['assets']['A'])} B{len(ab['assets']['B'])}")
+
+
+if __name__ == "__main__":
+    main()
