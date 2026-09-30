@@ -2,7 +2,7 @@
 """Google広告スクリプトが毎朝ドライブに書くCSV 2本から、index.html の `const AB = {...};` を実データで書き換える。
 使い方: python3 build.py [--publish]   （毎朝 launchd com.yuki.mina-ads-ab-board が --publish 付きで実行 → 変更があれば push）
 launchd からは /usr/bin/python3（3.9・ドライブを読める権限あり）で動かすので、3.9 で通る書き方にしておく。"""
-import csv, json, re, subprocess, sys
+import csv, json, re, subprocess, sys, time
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
@@ -14,11 +14,21 @@ LB = {"BEST": "best", "GOOD": "good", "LOW": "low"}  # それ以外（LEARNING /
 WD = "月火水木金土日"
 
 
+def read_rows(path):
+    # ドライブの同期中は launchd から開くと EDEADLK(11) になる（10/1 5:30 実測）。数十秒で抜けるので待って読み直す
+    for i in range(6):
+        try:
+            with open(path, newline="") as f:
+                return list(csv.DictReader(f))
+        except OSError as e:
+            if e.errno != 11 or i == 5:
+                raise
+            time.sleep(20)
+
+
 def load(latest):
-    with open(latest / "ad_by_day.csv", newline="") as f:
-        by_day = list(csv.DictReader(f))
-    with open(latest / "asset_by_ad.csv", newline="") as f:
-        assets = [r for r in csv.DictReader(f) if r["ad_group_ad_asset_view.field_type"] == "HEADLINE"]
+    by_day = read_rows(latest / "ad_by_day.csv")
+    assets = [r for r in read_rows(latest / "asset_by_ad.csv") if r["ad_group_ad_asset_view.field_type"] == "HEADLINE"]
     return by_day, assets
 
 
