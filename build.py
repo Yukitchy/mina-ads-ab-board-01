@@ -15,15 +15,15 @@ WD = "月火水木金土日"
 
 
 def read_rows(path):
-    # ドライブの同期中は launchd から開くと EDEADLK(11) になる（10/1 5:30 実測）。数十秒で抜けるので待って読み直す
-    for i in range(6):
+    # ドライブの同期中は launchd から開くと EDEADLK(11) になる（10/1, 10/2 5:30 実測）。120秒では抜けない日があったので300秒に拡大
+    for i in range(10):
         try:
             with open(path, newline="") as f:
                 return list(csv.DictReader(f))
         except OSError as e:
-            if e.errno != 11 or i == 5:
+            if e.errno != 11 or i == 9:
                 raise
-            time.sleep(20)
+            time.sleep(30)
 
 
 def load(latest):
