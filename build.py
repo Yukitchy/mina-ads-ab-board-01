@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Google広告スクリプトが毎朝ドライブに書くCSV 2本から、index.html の `const AB = {...};` を実データで書き換える。
 使い方: python3 build.py [--publish]   （毎朝 launchd com.yuki.mina-ads-ab-board が --publish 付きで実行 → 変更があれば push）
-launchd からは /usr/bin/python3（3.9・ドライブを読める権限あり）で動かすので、3.9 で通る書き方にしておく。"""
+launchd からは /Library/Frameworks/Python.framework/Versions/3.11/bin/python3（TCC許可済み・ドライブを読める）で動かす。
+/usr/bin/python3 はlaunchd経由だとGoogle DriveがEDEADLKで弾く（2026-10-05判明、手動実行は成功していた）。"""
 import csv, json, re, subprocess, sys, time
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
@@ -16,13 +17,13 @@ WD = "月火水木金土日"
 
 def read_rows(path):
     # ドライブの同期中は launchd から開くと EDEADLK(11) になる（10/1, 10/2 5:30、10/4 5:30+9:30 実測）。
-    # 300秒でも抜けない日があり2回連続のscheduled runが両方失敗したので900秒に拡大
-    for i in range(30):
+    # 900秒でも抜けない日があり5:30+9:30の2回連続scheduled runが両方失敗したので1800秒に拡大
+    for i in range(60):
         try:
             with open(path, newline="") as f:
                 return list(csv.DictReader(f))
         except OSError as e:
-            if e.errno != 11 or i == 29:
+            if e.errno != 11 or i == 59:
                 raise
             time.sleep(30)
 
