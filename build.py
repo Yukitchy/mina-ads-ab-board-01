@@ -56,9 +56,8 @@ def build(by_day, assets, old, today):
             continue
         t, lb = r["asset.text_asset.text"], LB.get(r.get("ad_group_ad_asset_view.performance_label", ""), "learn")
         imp, clk = int(r["metrics.impressions"]), int(r["metrics.clicks"])
-        learn = lb == "learn"  # ab-test-rules.md: 学習中の見出しは clk/ctr を出さない
         out[s].append({"t": t, "ja": ja.get(t, ""), "lb": lb, "imp": imp,
-                       "clk": None if learn else clk, "ctr": None if learn or not imp else clk / imp})
+                       "clk": clk, "ctr": clk / imp if imp else None})  # 学習中も出す（判定に使わないだけ）
     return {"start": START, "min": old.get("min", 100), "budget": old.get("budget", 1300), "real": True,
             "days": days, "assets": out}
 
