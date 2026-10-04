@@ -62,6 +62,9 @@ def build(by_day, assets, old, today):
             "days": days, "assets": out}
 
 
+KW_JSON = Path.home() / "ad-desk/data/keyword-report.json"
+
+
 def main():
     folders = sorted(p for p in ROOT.glob("20*") if p.is_dir())
     if not folders:
@@ -69,7 +72,10 @@ def main():
     html = HTML.read_text()
     m = re.search(r"^const AB = (\{.*\});$", html, re.M)
     ab = build(*load(folders[-1]), json.loads(m.group(1)), datetime.now(timezone(timedelta(hours=9))).date())
-    HTML.write_text(html[:m.start(1)] + json.dumps(ab, ensure_ascii=False) + html[m.end(1):])
+    html = html[:m.start(1)] + json.dumps(ab, ensure_ascii=False) + html[m.end(1):]
+    kw = KW_JSON.exists() and json.loads(KW_JSON.read_text()) or None  # リン（SEO）のキーワード需要レポート。無い日は null
+    m = re.search(r"^const KW = (.*);$", html, re.M)
+    HTML.write_text(html[:m.start(1)] + json.dumps(kw, ensure_ascii=False) + html[m.end(1):])
     print(f"{folders[-1].name}: {len(ab['days'])}日分 / 見出し A{len(ab['assets']['A'])} B{len(ab['assets']['B'])}")
     if "--publish" in sys.argv:
         git = lambda *a: subprocess.run(["/usr/bin/git", "-C", str(HTML.parent), *a], check=True)

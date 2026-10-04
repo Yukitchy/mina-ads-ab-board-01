@@ -156,6 +156,19 @@ body,p,li,td,th,div,span,b,small,h1,h2,h3{word-break:auto-phrase;line-break:stri
 #ab .ah>span{font-size:11.5px;color:var(--dim)}
 #ab .pill{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.03em;background:var(--ink);color:#fff;padding:3px 9px;border-radius:3px;vertical-align:2px;margin-left:6px}
 #ab .pill.B{background:var(--B)} #ab .pill.up{background:var(--good)}
+/* キーワード需要 */
+#ab .kw{margin-top:28px}
+#ab .kw .cols{margin-top:12px;row-gap:28px}
+#ab .kw table{width:100%;border-collapse:collapse;font-size:13px}
+#ab .kw th{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--dim);text-align:left;padding:0 8px 8px 0;border-bottom:1px solid var(--ink)}
+#ab .kw td{padding:7px 8px 7px 0;border-bottom:1px solid #eee;vertical-align:baseline}
+#ab .kw td.k{font-weight:700}
+#ab .kw td.s,#ab .kw td.r{color:var(--dim);font-size:12px}
+#ab .kw td.r{text-align:right;white-space:nowrap}
+#ab .kw .tw{overflow-x:auto}
+#ab .kw .note{font-size:12px;color:var(--dim);margin:8px 0 0}
+#ab .kw .rec li b{font-size:15px}
+#ab .kw .rec li.best i{color:var(--good)}
 /* 一手 */
 #ab .action{margin-top:22px}
 #ab .action ol{list-style:none;margin:6px 0 0;padding:0}
@@ -223,12 +236,14 @@ body,p,li,td,th,div,span,b,small,h1,h2,h3{word-break:auto-phrase;line-break:stri
 
     <div class="assets" id="assets"></div>
     <div class="foot"><span>Google のラベル（最良・良・低・学習中）は各見出しの実績評価。学習中の見出しは数字が安定しないので判定には使わない（表示はする）。</span><span class="mono">ルール: ads/ab-test-rules.md</span></div>
+    <div class="kw" id="kw"></div>
   </section>
 </div>
 
 <script>
 /* ── 共通ロジック（3案とも同じ計算。見た目だけ案ごと） ── */
 const AB = {"start": "2026-09-30", "min": 100, "budget": 1300, "real": true, "days": [{"date": "2026-09-30", "w": "水", "A": {"imp": 36, "clk": 2, "cost": 245, "bc": 0}, "B": {"imp": 93, "clk": 6, "cost": 1054, "bc": 0}}, {"date": "2026-10-01", "w": "木", "A": {"imp": 133, "clk": 6, "cost": 893, "bc": 0}, "B": {"imp": 103, "clk": 3, "cost": 384, "bc": 0}}, {"date": "2026-10-02", "w": "金", "A": {"imp": 97, "clk": 4, "cost": 514, "bc": 0}, "B": {"imp": 77, "clk": 6, "cost": 861, "bc": 0}}, {"date": "2026-10-03", "w": "土", "A": {"imp": 172, "clk": 7, "cost": 858, "bc": 0}, "B": {"imp": 202, "clk": 4, "cost": 490, "bc": 0}}], "assets": {"A": [{"t": "Private Akihabara Anime Tour", "ja": "プライベート秋葉原アニメツアー", "lb": "learn", "imp": 67, "clk": 0, "ctr": 0.0}, {"t": "Akihabara Tour With a Local", "ja": "地元の人と行く秋葉原ツアー", "lb": "learn", "imp": 132, "clk": 10, "ctr": 0.07575757575757576}, {"t": "Rated 4.96 on Airbnb", "ja": "Airbnbで4.96の評価", "lb": "learn", "imp": 7, "clk": 0, "ctr": 0.0}, {"t": "4.96 Stars From 171 Reviews", "ja": "171件のレビューで星4.96", "lb": "learn", "imp": 1, "clk": 0, "ctr": 0.0}, {"t": "100% Private, Never Grouped", "ja": "100%プライベート、相席なし", "lb": "learn", "imp": 1, "clk": 0, "ctr": 0.0}, {"t": "Fully Guided in English", "ja": "全編英語のガイド付き", "lb": "learn", "imp": 11, "clk": 0, "ctr": 0.0}, {"t": "Built Around Your Fav Anime", "ja": "好きなアニメに合わせて設計", "lb": "learn", "imp": 0, "clk": 0, "ctr": null}, {"t": "Anime Pilgrimage in Akiba", "ja": "秋葉原でアニメ聖地巡礼", "lb": "learn", "imp": 142, "clk": 7, "ctr": 0.04929577464788732}, {"t": "Retro Games, Figures, Doujin", "ja": "レトロゲーム・フィギュア・同人", "lb": "learn", "imp": 81, "clk": 0, "ctr": 0.0}, {"t": "Half-Day Walking Tour", "ja": "半日の徒歩ツアー", "lb": "learn", "imp": 46, "clk": 1, "ctr": 0.021739130434782608}, {"t": "Guided by a Local Otaku", "ja": "地元のオタクが案内", "lb": "learn", "imp": 4, "clk": 0, "ctr": 0.0}, {"t": "Book Direct With Your Guide", "ja": "ガイドに直接予約", "lb": "learn", "imp": 4, "clk": 0, "ctr": 0.0}, {"t": "Akihabara Anime Walking Tour", "ja": "秋葉原アニメ・ウォーキングツアー", "lb": "learn", "imp": 358, "clk": 18, "ctr": 0.05027932960893855}, {"t": "A Route Made for Your Fandom", "ja": "あなたの推しのためのルート", "lb": "learn", "imp": 50, "clk": 5, "ctr": 0.1}, {"t": "Pilgrimage Map PDF Included", "ja": "聖地マップPDF付き", "lb": "learn", "imp": 193, "clk": 8, "ctr": 0.04145077720207254}], "B": [{"t": "Akihabara, Minus the Overwhelm", "ja": "圧倒されない秋葉原", "lb": "learn", "imp": 265, "clk": 13, "ctr": 0.04905660377358491}, {"t": "Find Exactly What You Came For", "ja": "探しているものを、ちゃんと見つける", "lb": "learn", "imp": 142, "clk": 7, "ctr": 0.04929577464788732}, {"t": "Spots You'd Never Find Alone", "ja": "一人では見つからない場所へ", "lb": "learn", "imp": 12, "clk": 1, "ctr": 0.08333333333333333}, {"t": "A Local Otaku Friend for a Day", "ja": "一日だけの、地元オタクの友達", "lb": "learn", "imp": 17, "clk": 0, "ctr": 0.0}, {"t": "Not a Tour. A Day Out.", "ja": "ツアーではなく、一日のおでかけ", "lb": "learn", "imp": 97, "clk": 5, "ctr": 0.05154639175257732}, {"t": "Your Fandom Sets the Route", "ja": "ルートはあなたの推しで決まる", "lb": "learn", "imp": 5, "clk": 0, "ctr": 0.0}, {"t": "Kids & Teens Love This Tour", "ja": "子どもにも十代にも大好評", "lb": "learn", "imp": 90, "clk": 3, "ctr": 0.03333333333333333}, {"t": "Anime Beginners Welcome Too", "ja": "アニメ初心者も歓迎", "lb": "learn", "imp": 110, "clk": 5, "ctr": 0.045454545454545456}, {"t": "Skip the Maze, Find the Gems", "ja": "迷路をとばして、お宝へ", "lb": "learn", "imp": 52, "clk": 5, "ctr": 0.09615384615384616}, {"t": "A Day Made Around You", "ja": "あなたを中心に組んだ一日", "lb": "learn", "imp": 89, "clk": 5, "ctr": 0.056179775280898875}, {"t": "Rated 4.96 by 171 Guests", "ja": "171人の評価で4.96", "lb": "learn", "imp": 22, "clk": 0, "ctr": 0.0}, {"t": "A Trip Highlight, Guests Say", "ja": "旅のハイライトだとゲストは言う", "lb": "learn", "imp": 23, "clk": 1, "ctr": 0.043478260869565216}, {"t": "Arcades, Figures & Hidden Gems", "ja": "アーケード、フィギュア、隠れた名店", "lb": "learn", "imp": 169, "clk": 7, "ctr": 0.04142011834319527}, {"t": "Chat With Your Guide All Trip", "ja": "旅のあいだずっとガイドに相談できる", "lb": "learn", "imp": 43, "clk": 0, "ctr": 0.0}, {"t": "Private. Your Pace. English.", "ja": "プライベートで、自分のペースで、英語で", "lb": "learn", "imp": 10, "clk": 0, "ctr": 0.0}]}};
+const KW = null;
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const int = n => Math.round(n).toLocaleString('en-US');
@@ -439,6 +454,21 @@ $('#assets').innerHTML = ['A', 'B'].map(s => {
   return `<div><div class="ah"><h3>見出し別 <span class="pill ${s === 'B' ? 'B' : ''}">広告${s}</span></h3><span>表示 / クリック / CTR</span></div>` +
     rows.map(a => `<div class="as${a.lb === 'learn' ? ' learn' : ''}"><span class="lb ${a.lb}">${LBL[a.lb]}</span><p>${esc(a.t)}<small>${esc(a.ja)}</small></p><span class="n"><b>${int(a.imp)}</b></span><span class="n"><b>${a.clk == null ? '—' : int(a.clk)}</b></span><span class="n">${a.ctr == null ? '—' : '<b>' + pct(a.ctr, 1) + '</b>'}</span></div>`).join('') + '</div>';
 }).join('');
+
+/* キーワード需要（SEOコンサル見立て）: ~/ad-desk/data/keyword-report.json を build.py が埋める */
+$('#kw').innerHTML = (() => {
+  const head = `<div class="ah"><h3>キーワード需要（SEOコンサル見立て）</h3><span>${KW ? esc([KW.asof, KW.window].filter(Boolean).join(' / ')) : ''}</span></div>`;
+  if (!KW) return head + '<p class="note">レポート未着（SEOコンサルのJSONがまだ置かれていない）</p>';
+  const g = (o, ...k) => { for (const x of k) if (o[x] != null && o[x] !== '') return o[x]; return ''; };
+  const th = (KW.themes || []).map(t => `<tr><td class="k">${esc(g(t, 'axis', 'name', 'theme', 't'))}</td><td class="s">${esc(g(t, 'basis', 'evidence', 'why', 'd'))}</td><td class="r"><b>${esc(g(t, 'verdict', 'judge', 'result'))}</b></td></tr>`).join('');
+  const kws = (KW.keywords || []).map(k => { const v = g(k, 'vol', 'volume'); return `<tr><td class="k">${esc(g(k, 'kw', 'keyword', 'q', 't'))}</td><td class="r"><b>${esc(g(k, 'demand', 'level', 'score'))}</b>${v !== '' ? ' · ' + esc(typeof v === 'number' ? int(v) : v) : ''}</td><td class="s">${esc(g(k, 'source', 'src', 'basis'))}</td></tr>`; }).join('');
+  const recs = Array.isArray(KW.recommend) ? KW.recommend : (KW.recommend && KW.recommend.options) || [];
+  const rec = recs.map((r, i) => { const best = r.best || r.pick || (KW.recommend && KW.recommend.best === i); return `<li class="${best ? 'best' : ''}"><i>${best ? '◎' : i + 1}</i><div><b>${esc(g(r, 't', 'title', 'name'))}</b><p>${esc(g(r, 'd', 'desc', 'why'))}</p></div></li>`; }).join('');
+  return head + `<div class="cols">
+    <div class="sec"><h3>訴求軸</h3><div class="tw"><table><thead><tr><th>軸</th><th>根拠</th><th style="text-align:right">判定</th></tr></thead><tbody>${th || '<tr><td class="s" colspan="3">なし</td></tr>'}</tbody></table></div></div>
+    <div class="sec"><h3>キーワード（需要が高い順）</h3><div class="tw"><table><thead><tr><th>キーワード</th><th style="text-align:right">需要</th><th>出どころ</th></tr></thead><tbody>${kws || '<tr><td class="s" colspan="3">なし</td></tr>'}</tbody></table></div></div>
+  </div>` + (rec ? `<div class="action rec"><h3>おすすめ</h3><ol>${rec}</ol></div>` : '') + (KW.gate ? `<p class="note">${esc(typeof KW.gate === 'string' ? KW.gate : JSON.stringify(KW.gate))}</p>` : '');
+})();
 </script>
 <script src="devbar.js"></script>
 </body>
