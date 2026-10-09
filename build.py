@@ -88,4 +88,6 @@ def main():
 
 
 if __name__ == "__main__":
+    print(f"[{datetime.now().isoformat(timespec='seconds')}] start", flush=True)
     main()
+    print(f"[{datetime.now().isoformat(timespec='seconds')}] end", flush=True)
