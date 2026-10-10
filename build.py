@@ -16,8 +16,13 @@ WD = "月火水木金土日"
 
 
 def read_rows(path):
-    # ドライブの同期中は launchd から開くと EDEADLK(11) になる（10/1, 10/2 5:30、10/4 5:30+9:30 実測）。
-    # 900秒でも抜けない日があり5:30+9:30の2回連続scheduled runが両方失敗したので1800秒に拡大
+    # ドライブの同期中は launchd から開くと EDEADLK(11) になる。900秒→1800秒に拡大してもopen()の
+    # リトライだけでは10/1〜10/10に毎日失敗（手動なら即成功）＝深夜アイドルでFile Provider接続が
+    # 眠ったままopen()を繰り返しても起きない。まずlistdir（軽いメタデータ呼び出し）で起こしてから開く
+    try:
+        list(path.parent.iterdir())
+    except OSError:
+        pass
     for i in range(60):
         try:
             with open(path, newline="") as f:
