@@ -72,7 +72,7 @@ KW_JSON = Path.home() / "ad-desk/data/keyword-report.json"
 
 
 def main():
-    folders = sorted(p for p in ROOT.glob("20*") if p.is_dir())
+    folders = sorted(p for p in ROOT.glob("20*") if (p / "ad_by_day.csv").exists())  # 検索語句だけの日付フォルダは飛ばす
     if not folders:
         sys.exit(f"CSVのフォルダがない: {ROOT}")
     html = HTML.read_text()
