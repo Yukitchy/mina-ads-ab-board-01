@@ -79,6 +79,7 @@ def main():
     m = re.search(r"^const AB = (\{.*\});$", html, re.M)
     ab = build(*load(folders[-1]), json.loads(m.group(1)), datetime.now(timezone(timedelta(hours=9))).date())
     html = html[:m.start(1)] + json.dumps(ab, ensure_ascii=False) + html[m.end(1):]
+    subprocess.run([sys.executable, str(Path.home() / "ad-desk/tools/daily_check.py")], check=False)  # 今日の施策を作る。失敗しても前回分で続行
     kw = KW_JSON.exists() and json.loads(KW_JSON.read_text()) or None  # リン（SEO）のキーワード需要レポート。無い日は null
     m = re.search(r"^const KW = (.*);$", html, re.M)
     HTML.write_text(html[:m.start(1)] + json.dumps(kw, ensure_ascii=False) + html[m.end(1):])
