@@ -7,7 +7,7 @@ import csv, json, re, subprocess, sys, time
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
-ROOT = Path.home() / "Library/CloudStorage/GoogleDrive-icchan417@gmail.com/マイドライブ/ads-export"
+ROOT = Path.home() / "ad-desk/data/ads-export"  # Drive の写し（tools/stage_ads_export.py が daily_check 経由で更新）
 HTML = Path(__file__).with_name("index.html")
 ADS = {"826392026602": "A", "826416311260": "B"}  # A=事実・安心 / B=感情・便益（広告グループ 206342583051）
 START = "2026-09-30"
@@ -72,6 +72,7 @@ KW_JSON = Path.home() / "ad-desk/data/keyword-report.json"
 
 
 def main():
+    subprocess.run([sys.executable, str(Path.home() / "ad-desk/tools/stage_ads_export.py")], check=False)  # Drive→ローカルへ写す。失敗しても前回の写しで続行
     folders = sorted(p for p in ROOT.glob("20*") if (p / "ad_by_day.csv").exists())  # 検索語句だけの日付フォルダは飛ばす
     if not folders:
         sys.exit(f"CSVのフォルダがない: {ROOT}")
