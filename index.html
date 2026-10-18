@@ -565,9 +565,11 @@ const AWORK = 'https://ad-actions.icchan417.workers.dev';
   const acts = {}; ((KW && KW.actions) || []).forEach(a => { if (a.exec) acts[a.id] = a; });
   const ST = { pending: ['受付済み（広告側が毎時取りに行きます）', ''], done: ['実施済み ✓', 'ok'], failed: ['失敗', 'ng'] };
   const show = (id, it) => { const e = document.querySelector('[data-st="' + id + '"]'), b = document.querySelector('.act[data-id="' + id + '"]'); if (!e || !it) return; const [t, c] = ST[it.status] || [it.status, '']; e.className = 'st ' + c; e.textContent = t + (it.msg ? '：' + it.msg : ''); if (b) b.disabled = it.status !== 'failed'; if (it.status === 'done') b.closest('li').classList.add('done'); };
-  const api = (path, body) => fetch(AWORK + path, { method: body ? 'POST' : 'GET', headers: { authorization: 'Bearer ' + tok }, body: body ? JSON.stringify(body) : undefined }).then(r => r.json());
-  const sync = () => tok && api('/status').then(r => (r.items || []).forEach(it => { if (it.id.endsWith('-' + KW.asof)) show(it.id.slice(0, -(KW.asof.length + 1)), it); })).catch(() => {});
-  sync(); setInterval(sync, 60000);
+  let busy = false;  // 受付済みがある間だけ見に行く（開きっぱなしの夜間ポーリングでKVの枠を食わない）
+  const api = (path, body) => (body && (busy = true), fetch(AWORK + path, { method: body ? 'POST' : 'GET', headers: { authorization: 'Bearer ' + tok }, body: body ? JSON.stringify(body) : undefined }).then(r => r.json()));
+  const sync = () => tok && api('/status').then(r => { const its = (r.items || []).filter(it => it.id.endsWith('-' + KW.asof)); busy = its.some(it => it.status === 'pending'); its.forEach(it => show(it.id.slice(0, -(KW.asof.length + 1)), it)); }).catch(() => {});
+  sync(); setInterval(() => { if (busy && !document.hidden) sync(); }, 60000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) sync(); });
   const dlg = document.createElement('dialog'); dlg.id = 'adlg'; document.body.appendChild(dlg);  // confirm() は黙って false を返す環境があるので自前
   const ask = (title, html, go) => {
     dlg.innerHTML = '<b>' + title + '</b><p>' + html + '</p><button class="go">実施する</button><button class="no">やめる</button>';
