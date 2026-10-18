@@ -134,6 +134,11 @@ body,p,li,td,th,div,span,b,small,h1,h2,h3{word-break:auto-phrase;line-break:stri
 #ab .sec>h3,#ab .action>h3{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--dim);border-bottom:1px solid var(--ink);padding-bottom:8px;margin:0}
 #ab .leg{display:flex;gap:16px;font-size:12px;color:var(--dim);margin:10px 0 2px}
 #ab .leg span::before{content:"";display:inline-block;width:10px;height:10px;background:var(--c);margin-right:6px;border-radius:2px;vertical-align:-1px}
+#ab .cnote{font-size:11.5px;color:var(--dim);line-height:1.6;margin:6px 0 0}
+#ab .mk{stroke:var(--tomato);stroke-width:1;stroke-dasharray:3 2}
+#ab .mkt{font:700 10px "Zen Kaku Gothic New",sans-serif;fill:var(--tomato)}
+#ab .weak{opacity:.3}
+#ab .tip .wk{font-size:10.5px;color:var(--tomato);margin-top:2px}
 #ab .mini{font-size:11px;font-weight:700;color:var(--dim);letter-spacing:.08em;margin:14px 0 2px}
 #ab svg{display:block;overflow:visible}
 #ab .gl{stroke:#ececec;stroke-width:1} #ab .gl.z{stroke:#bdbdbd}
@@ -260,6 +265,7 @@ body,p,li,td,th,div,span,b,small,h1,h2,h3{word-break:auto-phrase;line-break:stri
         <div class="leg"><span style="--c:var(--A)">広告A</span><span style="--c:var(--B)">広告B</span></div>
         <p class="mini">クリック数 / 日</p><div id="c1"></div>
         <p class="mini">CTR / 日</p><div id="c2"></div>
+        <p class="cnote">2本は同じ日予算を分け合うので、日ごとの勝ち負けは入れ替わる。比べるのは全期間の合計。薄い点は表示50回未満の日（参考値）</p>
       </div>
       <div class="action"><h3>次の一手</h3><ol id="acts"></ol><p class="loopnote" id="loop"></p></div>
     </div>
@@ -365,6 +371,7 @@ function chart(host, o) {
   const fmt = o.fmt || (v => +v.toFixed(1));
   let g = '';
   if (o.sel != null) g += `<rect x="${pl + iw * o.sel / n}" y="${pt}" width="${iw / n}" height="${ih}" class="selcol"/>`;
+  (o.marks || []).forEach(m => { const i = AB.days.findIndex(d => d.date === m.date); if (i < 1) return; const mx = pl + iw * i / n; g += `<line x1="${mx}" x2="${mx}" y1="${pt}" y2="${pt + ih}" class="mk"/><text x="${mx - 4}" y="${pt + 10}" class="mkt" text-anchor="end">${esc(m.label)}</text>`; });
   if (o.mirror) {
     const y0 = pt + ih / 2, hh = ih / 2;
     [0, .5, 1].forEach(t => { [-1, 1].forEach(sg => { const yy = y0 - sg * hh * t; g += `<line x1="${pl}" x2="${W - pr}" y1="${yy}" y2="${yy}" class="gl${t === 0 ? ' z' : ''}"/>`; }); if (t) g += `<text x="${pl - 6}" y="${y0 - hh * t + 4}" class="ay">${fmt(max * t)}</text><text x="${pl - 6}" y="${y0 + hh * t + 4}" class="ay">${fmt(max * t)}</text>`; });
@@ -378,8 +385,9 @@ function chart(host, o) {
       o.series.forEach((s, si) => s.data.forEach((v, i) => { g += `<rect x="${x(i) - gw / 2 + si * bw}" y="${y(v)}" width="${bw - 1}" height="${pt + ih - y(v)}" fill="${s.color}" rx="1.5"/>`; }));
     } else {
       o.series.forEach(s => {
-        g += `<polyline fill="none" stroke="${s.color}" stroke-width="2.2" stroke-linejoin="round" ${s.dash ? 'stroke-dasharray="4 3"' : ''} points="${s.data.map((v, i) => x(i) + ',' + y(v)).join(' ')}"/>`;
-        s.data.forEach((v, i) => { g += `<circle cx="${x(i)}" cy="${y(v)}" r="2.6" data-i="${i}" fill="#fff" stroke="${s.color}" stroke-width="1.6"/>`; });
+        const wk = i => s.weak && s.weak[i];
+        s.data.forEach((v, i) => { if (i) g += `<line x1="${x(i - 1)}" y1="${y(s.data[i - 1])}" x2="${x(i)}" y2="${y(v)}" stroke="${s.color}" stroke-width="2.2" stroke-linecap="round"${wk(i) || wk(i - 1) ? ' class="weak"' : ''}/>`; });
+        s.data.forEach((v, i) => { g += `<circle cx="${x(i)}" cy="${y(v)}" r="2.6" data-i="${i}" fill="#fff" stroke="${s.color}" stroke-width="1.6"${wk(i) ? ' class="weak"' : ''}/>`; });
       });
     }
   }
@@ -449,14 +457,17 @@ function drawSel() {
     `<tr class="cv"><td>CV（GA4 book_direct）<small>取り込み後に判定指標へ</small></td><td class="v">—</td><td class="v">—</td><td class="diff n">未計測</td></tr></tbody>`;
   drawCharts();
 }
-function tipOf(i, cell) {
+function tipOf(i, cell, weakNote) {
   const d = AB.days[i];
-  return `<div class="tt">${md(d.date)}（${d.w}）</div>` + ['A', 'B'].map(s => `<div class="tr"><i style="background:${s === 'A' ? cA : cB}"></i>広告${s}${cell(d, s)}</div>`).join('');
+  return `<div class="tt">${md(d.date)}（${d.w}）</div>` + ['A', 'B'].map(s => `<div class="tr"><i style="background:${s === 'A' ? cA : cB}"></i>広告${s}${cell(d, s)}</div>`).join('') +
+    (weakNote && (d.A.imp < WEAK || d.B.imp < WEAK) ? '<div class="wk">表示50回未満。1クリックで大きく動く参考値</div>' : '');
 }
+const WEAK = 50;  // これ未満の表示回数の日のCTRは薄く描く
+const MARKS = [{ date: '2026-10-15', label: '完全一致のみに変更' }];  // 配信条件を変えた日（ad-desk/RESUME.md）
 function drawCharts() {
-  chart($('#c1'), { type: 'bar', H: 150, step: 5, sel: SEL, tip: i => tipOf(i, (d, s) => `<b>${d[s].clk}</b><small>クリック</small>`), label: '日別クリック', series: [{ name: 'A', color: cA, data: AB.days.map(x => x.A.clk) }, { name: 'B', color: cB, data: AB.days.map(x => x.B.clk) }] });
+  chart($('#c1'), { type: 'bar', H: 150, step: 5, sel: SEL, tip: i => tipOf(i, (d, s) => `<b>${d[s].clk}</b><small>クリック</small>`), marks: MARKS, label: '日別クリック', series: [{ name: 'A', color: cA, data: AB.days.map(x => x.A.clk) }, { name: 'B', color: cB, data: AB.days.map(x => x.B.clk) }] });
   const ctrMax = Math.max(...AB.days.flatMap(x => ['A', 'B'].map(k => x[k].imp ? x[k].clk / x[k].imp : 0)));
-  chart($('#c2'), { type: 'line', H: 150, ymax: Math.max(.06, Math.ceil(ctrMax * 1.1 / .03) * .03), sel: SEL, fmt: v => (v * 100).toFixed(0) + '%', tip: i => tipOf(i, (d, s) => d[s].imp ? `<b>${pct(d[s].clk / d[s].imp, 1)}</b><small>${d[s].clk}/${int(d[s].imp)}</small>` : '<b>—</b><small>表示0</small>'), label: '日別CTR', series: [{ name: 'A', color: cA, data: AB.days.map(x => x.A.imp ? x.A.clk / x.A.imp : 0) }, { name: 'B', color: cB, data: AB.days.map(x => x.B.imp ? x.B.clk / x.B.imp : 0) }] });
+  chart($('#c2'), { type: 'line', H: 150, ymax: Math.max(.06, Math.ceil(ctrMax * 1.1 / .03) * .03), sel: SEL, fmt: v => (v * 100).toFixed(0) + '%', tip: i => tipOf(i, (d, s) => d[s].imp ? `<b>${pct(d[s].clk / d[s].imp, 1)}</b><small>${d[s].clk}/${int(d[s].imp)}</small>` : '<b>—</b><small>表示0</small>', 1), marks: MARKS, label: '日別CTR', series: [{ name: 'A', color: cA, data: AB.days.map(x => x.A.imp ? x.A.clk / x.A.imp : 0), weak: AB.days.map(x => x.A.imp < WEAK) }, { name: 'B', color: cB, data: AB.days.map(x => x.B.imp ? x.B.clk / x.B.imp : 0), weak: AB.days.map(x => x.B.imp < WEAK) }] });
 }
 /* 並びは 1日目 … 最新の日 → 全期間。開いた時は全期間 */
 function step(dir) {
