@@ -531,7 +531,7 @@ $('#today').innerHTML = (() => {
   let done = {}; try { done = JSON.parse(localStorage.getItem('adtoday-' + (KW ? KW.asof : '')) || '{}'); } catch (e) {}
   const daily = A.filter(a => a.kind === 'daily');
   const pace = P ? `<p class="note">今月 ${yen(P.spent)} / 上限 ${yen(P.cap)}・このペースの月末着地 <b>${yen(P.projected)}</b>${P.projected > P.cap ? '（超過）' : ''}・平均CPC ${yen(P.cpc)}・損益分岐CPA ${yen(P.break_even_cpa)}</p>` : '';
-  const li = a => `<li data-id="${esc(a.id)}" class="${done[a.id] ? 'done' : ''}"><i>${a.kind === 'weekly' ? '週' : a.kind === 'decide' ? '判' : '日'}</i><div><b>${esc(a.t)}${a.kind === 'weekly' ? '<span class="wk">週1枠</span>' : ''}</b><p>${esc(a.d)}<br>手順: ${esc(a.how)}</p>${a.exec ? `<button type="button" class="act" data-id="${esc(a.id)}">実施する</button><span class="st" data-st="${esc(a.id)}"></span>` : ''}</div></li>`;
+  const li = a => `<li data-id="${esc(a.id)}" class=""><i>${a.kind === 'weekly' ? '週' : a.kind === 'decide' ? '判' : '日'}</i><div><b>${esc(a.t)}${a.kind === 'weekly' ? '<span class="wk">週1枠</span>' : ''}</b><p>${esc(a.d)}<br>手順: ${esc(a.how)}</p>${a.exec ? `<button type="button" class="act" data-id="${esc(a.id)}">実施する</button><span class="st" data-st="${esc(a.id)}"></span>` : ''}</div></li>`;
   return `<div class="ah"><h3>今日の施策</h3>${daily.length ? `<button type="button" id="goall">全部やる（${daily.length}件）</button>` : '<span>今日の毎日系はなし</span>'}</div>` +
     (A.length ? `<ol>${A.map(li).join('')}</ol>` : '<p class="note">レポート未着、または今日は施策なし</p>') + pace;
 })();
@@ -556,18 +556,37 @@ const AWORK = 'https://ad-actions.icchan417.workers.dev';
   const show = (id, it) => { const e = document.querySelector('[data-st="' + id + '"]'), b = document.querySelector('.act[data-id="' + id + '"]'); if (!e || !it) return; const [t, c] = ST[it.status] || [it.status, '']; e.className = 'st ' + c; e.textContent = t + (it.msg ? '：' + it.msg : ''); if (b) b.disabled = it.status !== 'failed'; if (it.status === 'done') b.closest('li').classList.add('done'); };
   const api = (path, body) => fetch(AWORK + path, { method: body ? 'POST' : 'GET', headers: { authorization: 'Bearer ' + tok }, body: body ? JSON.stringify(body) : undefined }).then(r => r.json());
   const sync = () => tok && api('/status').then(r => (r.items || []).forEach(it => { if (it.id.endsWith('-' + KW.asof)) show(it.id.slice(0, -(KW.asof.length + 1)), it); })).catch(() => {});
-  if (!tok) $$('.act').forEach(b => { b.disabled = true; b.title = 'この端末は未登録（初回リンクから開く）'; });
   sync(); setInterval(sync, 60000);
   const dlg = document.createElement('dialog'); dlg.id = 'adlg'; document.body.appendChild(dlg);  // confirm() は黙って false を返す環境があるので自前
+  const ask = (title, html, go) => {
+    dlg.innerHTML = '<b>' + title + '</b><p>' + html + '</p><button class="go">実施する</button><button class="no">やめる</button>';
+    dlg.querySelector('.no').onclick = () => dlg.close();
+    dlg.querySelector('.go').onclick = () => { dlg.close(); go(); };
+    dlg.showModal();
+  };
+  const register = () => {  // 未登録の端末: 黙ってグレーにせず、登録コードを入れてもらう
+    dlg.innerHTML = '<b>この端末はまだ登録されていません</b><p>登録コードを貼ると、この端末から押せるようになります（初回だけ）。</p><input id="adcode" style="width:100%;font:inherit;padding:8px;border:1px solid var(--ink);margin-bottom:12px" placeholder="登録コード"><br><button class="go">登録する</button><button class="no">やめる</button>';
+    dlg.querySelector('.no').onclick = () => dlg.close();
+    dlg.querySelector('.go').onclick = () => { const v = dlg.querySelector('#adcode').value.trim(); if (!/^[\w-]{20,}$/.test(v)) return; try { localStorage.setItem('adtok', v); } catch (e) {} location.reload(); };
+    dlg.showModal();
+  };
+  const queue = a => api('/act', { id: a.id + '-' + KW.asof, type: a.exec.type, params: a.exec.params, label: a.t })
+    .then(r => { if (r.ok) show(a.id, Object.assign({}, r.item, { id: a.id })); else { show(a.id, { status: 'failed', msg: r.error }); } })
+    .catch(() => show(a.id, { status: 'failed', msg: '受付箱に届かない' }));
   $$('.act').forEach(b => b.onclick = () => {
     const a = acts[b.dataset.id]; if (!a) return;
-    dlg.innerHTML = '<b>この施策を実施します</b><p>' + esc(a.confirm || a.t) + '<br>広告の設定が実際に変わります。</p><button class="go">実施する</button><button class="no">やめる</button>';
-    dlg.querySelector('.no').onclick = () => dlg.close();
-    dlg.querySelector('.go').onclick = () => { dlg.close(); b.disabled = true;
-      api('/act', { id: a.id + '-' + KW.asof, type: a.exec.type, params: a.exec.params, label: a.t }).then(r => { if (r.ok) show(a.id, Object.assign({}, r.item, { id: a.id })); else { b.disabled = false; show(a.id, { status: 'failed', msg: r.error }); } })
-        .catch(() => { b.disabled = false; show(a.id, { status: 'failed', msg: '受付箱に届かない' }); }); };
-    dlg.showModal();
+    if (!tok) return register();
+    ask('この施策を実施します', esc(a.confirm || a.t) + '<br>広告の設定が実際に変わります。', () => queue(a));
   });
+  // 「全部やる」= 押せる施策は受付箱へ積む／押せない施策（見出しの変更など）は手順をコピー。取り消し線は status=done になってから
+  if ($('#goall')) $('#goall').onclick = () => {
+    const daily = KW.actions.filter(a => a.kind === 'daily'), ex = daily.filter(a => a.exec), man = daily.filter(a => !a.exec);
+    if (ex.length && !tok) return register();
+    const go = () => { ex.forEach(queue);
+      if (man.length) { const txt = '広告の今日の施策（手動分・' + KW.asof + '）\n' + man.map((a, i) => (i + 1) + '. ' + a.how).join('\n'); navigator.clipboard && navigator.clipboard.writeText(txt).catch(() => {}); }
+      $('#goall').textContent = (ex.length ? ex.length + '件を受付済み' : '') + (ex.length && man.length ? '・' : '') + (man.length ? man.length + '件の手順をコピー済み（管理画面で手動）' : ''); };
+    ask('今日の施策を実施します', (ex.length ? '広告に反映する: ' + ex.map(a => esc(a.confirm || a.t)).join(' ／ ') + '<br>' : '') + (man.length ? '手動で実施する（手順をコピー）: ' + man.map(a => esc(a.t)).join(' ／ ') : ''), go);
+  };
 })();
 
 /* キーワード需要（SEOコンサル見立て）: ~/ad-desk/data/keyword-report.json を build.py が埋める */
