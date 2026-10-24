@@ -563,8 +563,10 @@ const AWORK = 'https://ad-actions.icchan417.workers.dev';
   if (m) { try { localStorage.setItem('adtok', m[1]); } catch (e) {} history.replaceState(null, '', location.pathname + location.search); }
   let tok = ''; try { tok = localStorage.getItem('adtok') || ''; } catch (e) {}
   const acts = {}; ((KW && KW.actions) || []).forEach(a => { if (a.exec) acts[a.id] = a; });
-  const ST = { pending: ['受付済み（広告側が毎時取りに行きます）', ''], done: ['実施済み ✓', 'ok'], failed: ['失敗', 'ng'] };
-  const show = (id, it) => { const e = document.querySelector('[data-st="' + id + '"]'), b = document.querySelector('.act[data-id="' + id + '"]'); if (!e || !it) return; const [t, c] = ST[it.status] || [it.status, '']; e.className = 'st ' + c; e.textContent = t + (it.msg ? '：' + it.msg : ''); if (b) b.disabled = it.status !== 'failed'; if (it.status === 'done') b.closest('li').classList.add('done'); };
+  const ST = { pending: ['実行中（広告側の取り込み待ち・最長1時間）', ''], done: ['反映済み ✓', 'ok'], failed: ['失敗', 'ng'] };
+  const WHY = '見出しの変更は広告スクリプトから操作できないため（Google Ads API の開通後に自動化）';
+  let all = null;  // 「全部やる」を押した後だけ、ボタンの文言を件数で更新する
+  const show = (id, it) => { const e = document.querySelector('[data-st="' + id + '"]'), b = document.querySelector('.act[data-id="' + id + '"]'); if (!e || !it) return; const [t, c] = ST[it.status] || [it.status, '']; e.className = 'st ' + c; e.textContent = t + (it.msg ? '：' + it.msg : ''); if (b) b.disabled = it.status !== 'failed'; if (it.status === 'done') b.closest('li').classList.add('done'); if (all) all(); };
   let busy = false;  // 受付済みがある間だけ見に行く（開きっぱなしの夜間ポーリングでKVの枠を食わない）
   const api = (path, body) => (body && (busy = true), fetch(AWORK + path, { method: body ? 'POST' : 'GET', headers: { authorization: 'Bearer ' + tok }, body: body ? JSON.stringify(body) : undefined }).then(r => r.json()));
   const sync = () => tok && api('/status').then(r => { const its = (r.items || []).filter(it => it.id.endsWith('-' + KW.asof)); busy = its.some(it => it.status === 'pending'); its.forEach(it => show(it.id.slice(0, -(KW.asof.length + 1)), it)); }).catch(() => {});
@@ -595,10 +597,13 @@ const AWORK = 'https://ad-actions.icchan417.workers.dev';
   if ($('#goall')) $('#goall').onclick = () => {
     const daily = KW.actions.filter(a => a.kind === 'daily'), ex = daily.filter(a => a.exec), man = daily.filter(a => !a.exec);
     if (ex.length && !tok) return register();
-    const go = () => { ex.forEach(queue);
+    const go = () => {
+      all = () => { const n = s => ex.filter(a => { const e = document.querySelector('[data-st="' + a.id + '"]'); return e && e.textContent.startsWith(ST[s][0]); }).length, d = n('done'), f = n('failed'), r = ex.length - d - f;
+        $('#goall').textContent = [r && r + '件 実行中', d && d + '件 反映済み ✓', f && f + '件 失敗', man.length && man.length + '件は手動（手順をコピー済み）'].filter(Boolean).join('・'); };
+      ex.forEach(queue);
       if (man.length) { const txt = '広告の今日の施策（手動分・' + KW.asof + '）\n' + man.map((a, i) => (i + 1) + '. ' + a.how).join('\n'); navigator.clipboard && navigator.clipboard.writeText(txt).catch(() => {}); }
-      $('#goall').textContent = (ex.length ? ex.length + '件を受付済み' : '') + (ex.length && man.length ? '・' : '') + (man.length ? man.length + '件の手順をコピー済み（管理画面で手動）' : ''); };
-    ask('今日の施策を実施します', (ex.length ? '広告に反映する: ' + ex.map(a => esc(a.confirm || a.t)).join(' ／ ') + '<br>' : '') + (man.length ? '手動で実施する（手順をコピー）: ' + man.map(a => esc(a.t)).join(' ／ ') : ''), go);
+      all(); };
+    ask('今日の施策を実施します', (ex.length ? '広告に反映する: ' + ex.map(a => esc(a.confirm || a.t)).join(' ／ ') + '<br>' : '') + (man.length ? '手動で実施する（手順をコピー）: ' + man.map(a => esc(a.t)).join(' ／ ') + '<br><small>' + WHY + '</small>' : ''), go);
   };
 })();
 
