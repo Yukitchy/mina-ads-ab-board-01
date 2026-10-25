@@ -73,7 +73,7 @@ KW_JSON = Path.home() / "ad-desk/data/keyword-report.json"
 
 def main():
     subprocess.run([sys.executable, str(Path.home() / "ad-desk/tools/stage_ads_export.py")], check=False)  # Drive→ローカルへ写す。失敗しても前回の写しで続行
-    folders = sorted(p for p in ROOT.glob("20*") if (p / "ad_by_day.csv").exists())  # 検索語句だけの日付フォルダは飛ばす
+    folders = sorted(p for p in ROOT.glob("20*") if (p / "ad_by_day.csv").exists() and (p / "asset_by_ad.csv").exists())  # 片方だけ写せた日はbuildに使えないので飛ばす
     if not folders:
         sys.exit(f"CSVのフォルダがない: {ROOT}")
     html = HTML.read_text()
